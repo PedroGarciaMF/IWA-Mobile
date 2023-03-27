@@ -1,119 +1,141 @@
 /**
- * IWAMobile - An insecure React Native mobile application for use in Micro Focus demonstrations
+ * IWAMobile - An insecure React Native mobile application for use in Micro Focus demonstrations.
  * https://github.com/fortify-presales/IWAMobile
  *
- * @author kadraman
+ * @author Kevin A. Lee (kadraman)
  *
  */
 
-import React, { useState, useRef } from 'react';
-import type { PropsWithChildren } from 'react';
-import { useColorScheme, TextInput, Button, View, Image} from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {Image} from 'react-native';
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import Icons from 'react-native-vector-icons/FontAwesome';
 
-import { HomeScreen} from "./screens/HomeScreen";
-import { MoreScreen } from './screens/MoreScreen';
-import { SearchScreen } from './screens/SearchScreen';
-import { CartScreen } from './screens/CartScreen';
+import {More} from './screens/More';
+import {Cart} from './screens/Cart';
+import {Account} from './screens/Account';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import Home from './screens/Home';
+import Search from './screens/Search';
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import {Product} from './screens/Product';
+
+import {AuthContext} from './context/AuthContext';
+
+import './Global.js';
+import * as Keychain from 'react-native-keychain';
+
+const badgeCount = 0;
 
 function LogoTitle() {
-  return (
-    <Image
-      style={{ width: 200, height: 50, padding: 2 }}
-      		source={require('./assets/img/logo.png')}
-    />
-  );
+    return (
+        <Image
+            style={{width: 150, height: 50}}
+            source={require('./assets/img/logo.png')}
+        />
+    );
 }
 
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function App(): JSX.Element {
-  return (
-    <NavigationContainer>
-	  <Tab.Navigator
-        screenOptions={({ route }) => ({
-		  headerStyle: {
-            backgroundColor: '#3c3d41',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+function App() {
+    const authContext = useContext(AuthContext);
+    const [status, setStatus] = useState('loading');
 
-            if (route.name === 'Home') {
-              iconName = focused
-                ? 'home'
-                : 'home';
-            } else if (route.name === 'Search') {
-              iconName = focused
-			    ? 'search'
-				: 'search';
-            } else if (route.name === 'Cart') {
-              iconName = focused
-			    ? 'shopping-bag'
-				: 'shopping-bag';
-			} else if (route.name === 'More') {
-              iconName = focused
-			    ? 'ellipsis-h'
-				: 'ellipsis-h';
-            }
+    const loadJWT = useCallback(async () => {
+        try {
+            const value = await Keychain.getGenericPassword();
+            const jwt = JSON.parse(value.password);
 
-            return <Icons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: 'blue',
-          tabBarInactiveTintColor: 'gray',
-        })}
-        >
-        <Tab.Screen name="Home" component={HomeScreen}
-		options={{
-		   headerTitle: (props) => <LogoTitle {...props} />,
-		 }}
-		/>
-		<Tab.Screen name="Search" component={SearchScreen} />
-		<Tab.Screen name="Cart"	component={CartScreen} />
-        <Tab.Screen name="More"	component={MoreScreen} />
-      </Tab.Navigator>
-	</NavigationContainer>
-  );
+            authContext.setAuthState({
+                accessToken: jwt.accessToken || null,
+                refreshToken: jwt.refreshToken || null,
+                authenticated: jwt.accessToken !== null,
+            });
+            setStatus('success');
+        } catch (error) {
+            setStatus('error');
+            console.log(`Keychain Error: ${error.message}`);
+            authContext.setAuthState({
+                accessToken: null,
+                refreshToken: null,
+                authenticated: false,
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        loadJWT().then(r => console.log());
+    }, [loadJWT]);
+
+    return (
+        <NavigationContainer>
+            <Tab.Navigator
+                screenOptions={({route}) => ({
+                    headerStyle: {
+                        backgroundColor: '#3c3d41',
+                    },
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                    },
+                    tabBarIcon: ({focused, color, size}) => {
+                        let iconName;
+
+                        if (route.name === 'Home') {
+                            iconName = focused
+                                ? 'home'
+                                : 'home';
+                        } else if (route.name === 'Search') {
+                            iconName = focused
+                                ? 'search'
+                                : 'search';
+                        } else if (route.name === 'Cart') {
+                            iconName = focused
+                                ? 'shopping-cart'
+                                : 'shopping-cart';
+                        } else if (route.name === 'Account') {
+                            iconName = focused
+                                ? 'user'
+                                : 'user';
+                        } else if (route.name === 'More') {
+                            iconName = focused
+                                ? 'ellipsis-h'
+                                : 'ellipsis-h';
+                        }
+
+                        return <Icons name={iconName} size={size} color={color}/>;
+                    },
+                    tabBarActiveTintColor: 'limegreen',
+                    tabBarInactiveTintColor: 'darkgray',
+                })}
+            >
+                <Tab.Screen name="Home" component={Home}
+                            options={({navigation}) => ({
+                                navigation: navigation,
+                                headerTitle: (props) => <LogoTitle {...props} />,
+                            })}
+                />
+                <Tab.Screen name="Search" component={Search}/>
+                <Tab.Screen name="Cart" component={Cart}
+                            options={{
+                                tabBarBadge: badgeCount,
+                            }}/>
+                <Tab.Screen name="Product" component={Product}
+                            options={({navigation}) => ({
+                                navigation: navigation,
+                                tabBarButton: () => null,
+                                tabBarStyle: {display: 'none'},
+                            })}
+                />
+                <Tab.Screen name="Account" component={Account}/>
+                <Tab.Screen name="More" component={More}/>
+            </Tab.Navigator>
+        </NavigationContainer>
+    );
 }
 
 export default App;
