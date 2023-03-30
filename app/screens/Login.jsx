@@ -1,12 +1,4 @@
-import {
-    View,
-    Text,
-    StyleSheet,
-    SafeAreaView,
-    TextInput,
-    Button,
-    Alert, Image,
-} from 'react-native';
+import {Alert, Button, Image, SafeAreaView, StyleSheet, TextInput, View} from 'react-native';
 import React, {useContext, useState} from 'react';
 import {AuthContext} from '../context/AuthContext';
 import * as Keychain from 'react-native-keychain';
@@ -26,7 +18,7 @@ const Login = () => {
         } catch (e) {
             // saving error
         }
-    }
+    };
 
     const getData = async () => {
         try {
@@ -34,10 +26,10 @@ const Login = () => {
         } catch (e) {
             // error reading value
         }
-    }
+    };
 
     const onLogin = async () => {
-        console.log(`Attempting to login user "${email}" with password "${password}"`)
+        console.log(`Attempting to login user "${email}" with password "${password}"`);
         try {
             const response = await publicAxios.post('/site/sign-in', {
                 username: email,
@@ -50,13 +42,16 @@ const Login = () => {
                 refreshToken,
                 authenticated: true,
             });
-            console.log(`Logged in successfully, retrieved accessToken "${accessToken}"`)
+            console.log(`Logged in successfully, retrieved accessToken "${accessToken}"`);
 
             // this is bad
             await storeData(JSON.stringify({
                 email,
                 password,
             }));
+            const data = await getData();
+            console.log(JSON.parse(data));
+
             // this is better
             await Keychain.setGenericPassword(
                 'token',
@@ -73,7 +68,7 @@ const Login = () => {
     return (
         <SafeAreaView style={styles.container}>
             <Image style={styles.logo}
-                source={require('../assets/img/login_logo.png')}
+                   source={require('../assets/img/login_logo.png')}
             />
             <View style={styles.form}>
                 <TextInput
@@ -95,7 +90,7 @@ const Login = () => {
                     value={password}
                 />
             </View>
-            <Button title="Login" style={styles.button} onPress={() => onLogin()} />
+            <Button title="Login" style={styles.button} onPress={() => onLogin()}/>
         </SafeAreaView>
     );
 };

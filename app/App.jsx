@@ -1,6 +1,6 @@
 /**
- * IWAMobile - An insecure React Native mobile application for use in Micro Focus demonstrations.
- * https://github.com/fortify-presales/IWAMobile
+ * IWA-Mobile - An insecure React Native mobile application for use in Micro Focus demonstrations.
+ * https://github.com/fortify-presales/IWA-Mobile
  *
  * @author Kevin A. Lee (kadraman)
  *
@@ -48,14 +48,22 @@ function App() {
     const loadJWT = useCallback(async () => {
         try {
             const value = await Keychain.getGenericPassword();
-            const jwt = JSON.parse(value.password);
-
-            authContext.setAuthState({
-                accessToken: jwt.accessToken || null,
-                refreshToken: jwt.refreshToken || null,
-                authenticated: jwt.accessToken !== null,
-            });
-            setStatus('success');
+            if (value) {
+                const jwt = JSON.parse(value.password);
+                console.log(jwt);
+                authContext.setAuthState({
+                    accessToken: jwt.accessToken || null,
+                    refreshToken: jwt.refreshToken || null,
+                    authenticated: jwt.accessToken !== null,
+                });
+                setStatus('success');
+            } else {
+                authContext.setAuthState({
+                    accessToken: null,
+                    refreshToken: null,
+                    authenticated: false,
+                });
+            }
         } catch (error) {
             setStatus('error');
             console.log(`Keychain Error: ${error.message}`);
@@ -68,7 +76,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        loadJWT().then(r => console.log());
+        loadJWT().then(r => console.log(r));
     }, [loadJWT]);
 
     return (

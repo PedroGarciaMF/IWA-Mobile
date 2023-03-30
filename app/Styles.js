@@ -101,6 +101,14 @@ export const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
   },
+  buttonRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 20,
+  },
   homeButton: {
     padding: 2,
     width: '40%',
