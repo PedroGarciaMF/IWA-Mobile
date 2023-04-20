@@ -21,6 +21,9 @@
 #   FOD_API_URI should be FoD API URI for your tenant (e.g. https://api.emea,fortify.com)
 #   FOD_CLIENT_ID/FOD_CLIENT_SECRET API Credentials should be obtained from your FoD tenant.
 #   FOD_PARENT_RELEASE_NAME is the FoD release name corresponding to the parent branch of any newly created branch, this is typically "master" or "main"
+# Helpful hints:
+#   Credentials should be obtained from your FoD tenant, under Administration -> Settings -> API and 'Security Lead' Role selected.
+#   Automated Audit preference should be configured for the release's Static Scan Settings in the Fortify on Demand portal.
 
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -146,7 +149,8 @@ jobs:
       # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
       - name: Generate Gradle dependencies file
         shell: bash
-        run: sh ./gradlew dependencies > .debricked-gradle-dependencies.txt
+        #run: sh ./gradlew dependencies > .debricked-gradle-dependencies.txt
+        run: npm install --package-lock-only
 
       # Prepare source+dependencies for upload. The default example is for a Maven project that uses pom.xml.
       # Update PACKAGE_OPTS based on the ScanCentral Client documentation for your project's included tech stack(s). Helpful hints:
@@ -181,9 +185,6 @@ jobs:
           exclusions: '*.git* __tests__ android ios bin'
 
       # Start Fortify on Demand SAST scan and wait until results complete. For more information on FoDUploader commands, see https://github.com/fod-dev/fod-uploader-java
-      # TODO: Update ENV variables for your application and create the necessary GitHub Secrets.  Helpful hints:
-      #   Credentials and release ID should be obtained from your FoD tenant (either Personal Access Token or API Key can be used).
-      #   Automated Audit preference should be configured for the release's Static Scan Settings in the Fortify on Demand portal.
       #- name: Download Fortify on Demand Universal CI Tool
       #  uses: fortify/gha-setup-fod-uploader@v1.1.3
       #- name: Perform SAST Scan
