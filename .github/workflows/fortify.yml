@@ -59,9 +59,10 @@ on:
 
 # Global environment variables
 env:
-  APP_NAME: "IWAPharmacyDirect - Mobile"
+  APP_NAME: "IMAPharmacyDirect"
   PARENT_RELEASE_NAME: "main"
-  FCLI_VER: "v1.2.5"
+  #FCLI_VER: "v1.2.5"
+  FCLI_VER: "dev_develop"
   SCANCENTRAL_VER: "22.2.0"
 
 jobs:
@@ -223,9 +224,9 @@ jobs:
       - name: Perform SAST scan
         shell: bash
         run: |
-          fcli fod sast-scan start "${FOD_RELEASE_NAME}" --entitlement SubscriptionOnly --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+          fcli fod scan start-sast "${FOD_RELEASE_NAME}" --entitlement SubscriptionOnly --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
           sleep 5
-          fcli fod sast-scan wait-for "{?curScan:scanId}" --session github-actions
+          fcli fod sast-scan wait-for ::curScan:: --session github-actions
         id: perform_sast_scan
         env:
           PACKAGE_FILE: "package.zip"
@@ -308,6 +309,36 @@ jobs:
       - name: Build Android Release
         run: |
           cd android && sh ./gradlew assembleRelease    
+
+      # Login Fortify on Demand fcli session
+      - name: Login fcli
+        shell: bash
+        run: |
+          fcli --version
+          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
+        env:
+          FOD_API_URI: ${{ secrets.FOD_API_URI }}
+          FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
+          FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
+
+      # Start Fortify on Demand Mobile scan and wait until results complete.
+      - name: Perform Mobile scan
+        shell: bash
+        run: |
+          fcli fod scan start-mobile "${FOD_RELEASE_NAME}" --framework=Android --entitlement-preference SubscriptionOnly --assessment-type Mobile -f $PACKAGE_FILE --store curScan --session github-actions
+          sleep 5
+          fcli fod scan wait-for ::curScan:scanId:: --session github-actions
+        id: perform_mobile_scan
+        env:
+          APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
+          FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.APP_NAME, steps.extract_branch.outputs.branch) }}
+          FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+
+      # Logout/Close Fortify on Demand fcli session
+      - name: Logout fcli
+        shell: bash
+        run: |
+          fcli fod session logout github-actions
 
   Security-Gate:
     runs-on: ubuntu-latest
