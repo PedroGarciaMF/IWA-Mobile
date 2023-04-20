@@ -16,6 +16,12 @@
 # assistance with configuration, feel free to create a help ticket in the Fortify on Demand portal.                                            #
 ################################################################################################################################################
 
+# Create GitHub Action Secrets for your version of the application:
+#   FOD_BASE_URL should be FoD BASE URL for your tenant (e.g. https://emea.fortify.com)
+#   FOD_API_URI should be FoD API URI for your tenant (e.g. https://api.emea,fortify.com)
+#   FOD_CLIENT_ID/FOD_CLIENT_SECRET API Credentials should be obtained from your FoD tenant.
+#   FOD_PARENT_RELEASE_NAME is the FoD release name corresponding to the parent branch of any newly created branch, this is typically "master" or "main"
+
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -124,15 +130,12 @@ jobs:
           FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 
       # Create FoD release for GitHub branch - if it doesn't already exist
-      # Update ENV variables for your application and create the necessary GitHub Secrets.  Helpful hints:
-      #   FOD_CLIENT_ID/FOD_CLIENT_SECRET API Credentials should be obtained from your FoD tenant.
-      #   FOD_PARENT_RELEASE_NAME is the FoD release name corresponding to the parent branch of any newly created branch, this is typically "master" or "main"
       - name: Create FoD release
         shell: bash
         run: |
-          fcli fod release list --app $APP_NAME --session github-actions
-          RELID=$(fcli fod release create ${APP_NAME}:${FOD_RELEASE_NAME} --description "Created automatically from GitHub" --copy-from $FOD_PARENT_RELEASE_NAME --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-          echo "FOD_RELEASE_ID=${RELID}"
+          fcli fod release list --app "$APP_NAME" --session github-actions
+          RELID=$(fcli fod release create "${APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from $FOD_PARENT_RELEASE_NAME --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
+          echo "Created FOD_RELEASE_ID=${RELID}"
           echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
         id: create_fod_release
         env:
