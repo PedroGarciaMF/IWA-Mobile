@@ -48,7 +48,7 @@ on:
 
 # Global environment variables
 env:
-  APP_NAME: "IWA=Mobile"
+  APP_NAME: "IWAPharmacyDirect - Mobile"
   PARENT_RELEASE_NAME: "main"
   FCLI_VER: "v1.2.5"
   SCANCENTRAL_VER: "22.2.0"
