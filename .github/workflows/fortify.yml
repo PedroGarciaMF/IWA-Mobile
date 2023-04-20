@@ -274,6 +274,13 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Dependencies
+        run: npm install --only=prod
+
       # Get the branch name or pr number
       - name: Extract branch name
         shell: bash
