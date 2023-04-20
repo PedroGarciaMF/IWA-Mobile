@@ -226,7 +226,7 @@ jobs:
         run: |
           fcli fod scan start-sast "${FOD_RELEASE_NAME}" --entitlement SubscriptionOnly --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
           sleep 5
-          fcli fod sast-scan wait-for ::curScan:: --session github-actions
+          fcli fod scan wait-for ::curScan:: --session github-actions
         id: perform_sast_scan
         env:
           PACKAGE_FILE: "package.zip"
