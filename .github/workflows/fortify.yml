@@ -203,7 +203,7 @@ jobs:
       - name: Perform SAST scan
         shell: bash
         run: |
-          fcli fod sast-scan start ${FOD_RELEASE_NAME} --entitlement SubscriptionOnly --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+          fcli fod sast-scan start "${FOD_RELEASE_NAME}" --entitlement SubscriptionOnly --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
           sleep 5
           fcli fod sast-scan wait-for "{?curScan:scanId}" --session github-actions
         id: perform_sast_scan
@@ -336,8 +336,8 @@ jobs:
       - name: Verify Security Policy
         shell: bash
         run: |
-          fcli fod release get ${APP_NAME}:${FOD_RELEASE_NAME} -o expr="Critical:\t{critical}\nHigh:\t\t{high}\nMedium:\t\t{medium}\nLow:\t\t{low}" --session github-actions
-          if [ $(fcli fod release get ${APP_NAME}:${FOD_RELEASE_NAME} -o expr="{isPassed}" --session github-actions) = 'true' ]; then echo "Security policy: passed"; else echo "Security policy: failed"; fi
+          fcli fod release get "${APP_NAME}:${FOD_RELEASE_NAME}" -o expr="Critical:\t{critical}\nHigh:\t\t{high}\nMedium:\t\t{medium}\nLow:\t\t{low}" --session github-actions
+          if [ $(fcli fod release get "${APP_NAME}:${FOD_RELEASE_NAME}" -o expr="{isPassed}" --session github-actions) = 'true' ]; then echo "Security policy: passed"; else echo "Security policy: failed"; fi
         id: verify_security_policy
         env:
           FOD_RELEASE_NAME: ${{ steps.extract_branch.outputs.branch }}
