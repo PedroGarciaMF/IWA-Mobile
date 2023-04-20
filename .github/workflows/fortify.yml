@@ -25,6 +25,8 @@
 #   Credentials should be obtained from your FoD tenant, under Administration -> Settings -> API and 'Security Lead' Role selected.
 #   Automated Audit preference should be configured for the release's Static Scan Settings in the Fortify on Demand portal.
 
+name: Fortify Security Scan
+
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -50,10 +52,10 @@ on:
         description: 'Carry out SAST scan using Fortify on Demand'
         required: false
         default: 'true'
-      runFoDDASTScan:
-        description: 'Carry out DAST scan using Fortify on Demand'
+      runFoDMobileScan:
+        description: 'Carry out Mobile scan using Fortify on Demand'
         required: false
-        default: 'false'
+        default: 'true'
 
 # Global environment variables
 env:
@@ -88,12 +90,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-          cache: 'gradle'
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: '15.x'
+          node-version: 16
       - name: Install Dependencies
         run: npm install --only=prod
 
@@ -241,9 +242,9 @@ jobs:
         run: |
           fcli fod session logout github-actions
 
-  FoD-DAST-Scan:
+  FoD-Mobile-Scan:
     runs-on: ubuntu-latest
-    if: ${{ (github.event.inputs.runFoDDASTScan == 'true') }}
+    if: ${{ (github.event.inputs.runFoDMobileScan == 'true') }}
 
     steps:
       - name: Check Out Source Code
@@ -252,7 +253,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-          cache: 'gradle'
 
       # Get the branch name or pr number
       - name: Extract branch name
@@ -295,7 +295,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-          cache: 'maven'
 
       # Get the branch name or pr number
       - name: Extract branch name
