@@ -65,13 +65,32 @@ env:
   SCANCENTRAL_VER: "22.2.0"
 
 jobs:
-  FoD-SAST-Scan:
-    # Use the appropriate runner for building your source code.
+
+  Build-And-Test:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
+
+    # Checkout the code
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+        with:
+          # Fetch at least the immediate parents so that if this is a pull request then we can checkout the head.
+          fetch-depth: 2
+      # If this run was triggered by a pull request event, then checkout the head of the pull request instead of the merge commit.
+      - run: git checkout HEAD^2
+        if: ${{ github.event_name == 'pull_request' }}
+
+      - name: Setup Node
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Dependencies
+        run: npm install --only=prod
+
+  FoD-SAST-Scan:
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDSASTScan == 'true') }}
+    needs: [ Build-And-Test ]
 
     # Checkout the code
     steps:
@@ -245,6 +264,7 @@ jobs:
   FoD-Mobile-Scan:
     runs-on: ubuntu-latest
     if: ${{ (github.event.inputs.runFoDMobileScan == 'true') }}
+    needs: [ Build-And-Test ]
 
     steps:
       - name: Check Out Source Code
@@ -285,7 +305,7 @@ jobs:
   Security-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [ FoD-SAST-Scan,FoD-DAST-Scan ]
+    needs: [ FoD-SAST-Scan, FoD-Mobile-Scan ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
