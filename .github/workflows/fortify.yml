@@ -327,7 +327,7 @@ jobs:
         run: |
           fcli fod scan start-mobile "${FOD_RELEASE_NAME}" --framework=Android --entitlement-frequency Subscription --assessment-type Mobile -f $APK_FILE --store curScan --session github-actions
           sleep 5
-          fcli fod scan wait-for ::curScan:scanId:: --session github-actions
+          fcli fod scan wait-for ::curScan:: --session github-actions
         id: perform_mobile_scan
         env:
           APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
