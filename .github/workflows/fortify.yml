@@ -59,7 +59,7 @@ on:
 
 # Global environment variables
 env:
-  APP_NAME: "IMAPharmacyDirect"
+  APP_NAME: "IWA-Mobile"
   PARENT_RELEASE_NAME: "main"
   #FCLI_VER: "v1.2.5"
   FCLI_VER: "dev_develop"
