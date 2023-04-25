@@ -37,4 +37,4 @@ Write-Host Generating PDF report...
 #    & fortifyclient uploadFPR -file "$($AppName).fpr" -url $SSCUrl -authtoken $SSCAuthToken -application $AppName -applicationVersion $AppVersion
 #}
 
-#Write-Host Done.
+Write-Host Done.

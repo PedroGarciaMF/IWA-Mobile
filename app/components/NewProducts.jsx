@@ -5,7 +5,6 @@ import '../Global.js';
 import {windowWidth} from '../Styles';
 import {AuthContext} from '../context/AuthContext';
 import {AxiosContext} from '../context/AxiosContext';
-import Spinner from './Spinner';
 
 export default function NewProducts({maxProducts}) {
     const axiosContext = useContext(AxiosContext);
@@ -44,15 +43,23 @@ export default function NewProducts({maxProducts}) {
     const _renderProduct = product => {
         return (
             <View style={styles.slide}>
-                <Image
-                    style={styles.slideImage}
-                    source={{uri: `${global.IMAGE_BASE_URI}/products/${product.image}`}}
-                />
-                <Text style={styles.slideTitle}>{product.name}</Text>
-                <Text style={styles.slideSubtitle}>
-                    {'\u0024'}
-                    {product.price}
-                </Text>
+                {loading === false ? (
+                    <View>
+                        <Image
+                            style={styles.slideImage}
+                            source={{uri: `${global.IMAGE_BASE_URI}/products/${product.image}`}}
+                        />
+                        <Text style={styles.slideTitle}>{product.name}</Text>
+                        <Text style={styles.slideSubtitle}>
+                            {'\u0024'}
+                            {product.price}
+                        </Text>
+                    </View>
+                ) : (
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <ActivityIndicator size="large" />
+                    </View>
+                )}
             </View>
         );
     };
