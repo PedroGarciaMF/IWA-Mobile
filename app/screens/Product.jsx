@@ -34,8 +34,8 @@ function Product({route, navigation}) {
 
     function processInput(evt) {
         /* Vulnerability: command/script injection */
-        //const result = eval(text);
-        let result = evt.data;
+        const result = eval(text);
+        //let result = evt.data;
         setDisplayText(result);
     }
 
