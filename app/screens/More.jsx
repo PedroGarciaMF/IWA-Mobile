@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {useCallback, useContext, useEffect, useState} from 'react';
 import {FlatList, Image, Modal, StatusBar, Text, TouchableOpacity, View} from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {styles} from '../Styles';
 import {AuthContext} from '../context/AuthContext';
 import _ from 'underscore';
 import {useFocusEffect} from '@react-navigation/native';
+
 import Login from './Login';
 
 class LinkVisiblity {
@@ -29,10 +31,10 @@ const defaultLinks = [
     {id: '99', icon: 'info-circle', text: 'About', visibility: LinkVisiblity.Always},
 ];
 
-function More({navigation}) {
+export default function More({navigation}) {
     const [listItems, setListItems] = useState(defaultLinks);
     const [loginRequired, setLoginRequired] = useState(false);
-
+    const isFocused = useIsFocused();
     const authContext = useContext(AuthContext);
 
     useFocusEffect(
@@ -41,10 +43,9 @@ function More({navigation}) {
         }, [authContext]),
     );
 
-    /*useEffect(() => {
-        console.log('inUseEffect');
-        getLinkVisibility();
-    }, []);*/
+    useEffect(() => {
+
+    }, [isFocused]);
 
     function getLinkVisibility() {
         if (authContext?.authState?.authenticated === true) {
@@ -124,5 +125,3 @@ function More({navigation}) {
         </View>
     );
 }
-
-export {More};

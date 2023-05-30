@@ -1,36 +1,39 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {ActivityIndicator, ScrollView, Button, Image, StatusBar, Text, TextInput, View, Alert} from 'react-native';
-import {styles, windowWidth} from '../Styles';
-import axios from 'axios';
-import '../Global.js';
-import {HStack} from 'react-native-flex-layout';
+import { useIsFocused } from '@react-navigation/native';
+import { NumericFormat } from 'react-number-format';
 
-function Product({route, navigation}) {
+import {styles, windowWidth} from '../Styles';
+import {HStack} from 'react-native-flex-layout';
+import { CartContext } from '../context/CartContext';
+
+import '../Global.js';
+import ProductsService from '../services/ProductsService.js';
+
+export default function Product({route, navigation}) {
     const {pid, otherParam} = route.params;
     const [text, setText] = useState('');
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [displayText, setDisplayText] = useState('');
 
-    const getProduct = (pid = '') => {
-        //const result = eval(keywords);
-        //console.log(result);
-        console.log(`Retrieving product id: ${pid}`);
-        axios
-            .get(`${global.API_BASE}/products/${pid}`)
-            .then(response => response.data)
-            .then(data => {
-                console.log(data);
-                setData(data);
-                setLoading(false);
-            })
-            .catch(error => console.error(`Error: ${error}`));
-    };
+    const { addItemToCart } = useContext(CartContext);
+    const isFocused = useIsFocused();
+
+    function onAddToCart() {
+        console.log("Product::onAddToCart");
+        Alert.alert(`You have added ${data.name} to your cart.`);
+        addItemToCart(data);
+    }
 
     useEffect(() => {
-        getProduct(pid);
-    }, []);
+        ProductsService.getProduct(pid).then(data => {
+            //console.log("INSIDE DATA", data);
+            setData(data);
+            setLoading(false);
+        });
+    }, [isFocused]);
 
     function processInput(evt) {
         /* Vulnerability: command/script injection */
@@ -46,16 +49,21 @@ function Product({route, navigation}) {
                     <View style={{flex: 1}}>
                         <Button title="Go back" onPress={() => navigation.navigate('Search')}/>
 
-                        <View style={{height: 200, alignItems: 'center', justifyContent: 'center'}}>
+                        <View style={{alignItems: 'center', justifyContent: 'center'}}>
                             <Image
-                                style={{width: '50%', height: '50%'}}
-                                source={{uri: `${global.IMAGE_BASE_URI}products/${data.image}`}}
+                                style={styles.productImage}
+                                source={{uri: `${global.API_BASE}/products/${data.id}/image`}}
                             />
                             <Text style={{fontSize: 24}}>{data.name}</Text>
-                            <Text style={{fontSize: 18}}>
-                                {'\u0024'}
-                                {data.price}
-                            </Text>
+                            <NumericFormat
+                                displayType={'text'}
+                                value={data.price}
+                                prefix={'$'}
+                                thousandSeparator={true}
+                                decimalScale={2}
+                                fixedDecimalScale
+                                renderText={(value) =>  <Text style={{fontSize: 18}}>{value}</Text>}
+                            />
                         </View>
                         <View style={{
                             flexDirection: 'row',
@@ -68,7 +76,7 @@ function Product({route, navigation}) {
                                     <Button
                                         title="Add to Cart"
                                         style={styles.button}
-                                        onPress={() => Alert.alert('Add to Cart Button pressed')}
+                                        onPress={onAddToCart}
                                     />
                                 </View>
                             </HStack>
@@ -112,5 +120,3 @@ function Product({route, navigation}) {
         </View>
     );
 }
-
-export {Product};

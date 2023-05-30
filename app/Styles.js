@@ -138,4 +138,15 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     width: 300,
   },
+
+  productImage: {
+    flex: 1,
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    margin: 7,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
 });

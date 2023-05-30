@@ -1,7 +1,9 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, FlatList, Image, StyleSheet, Text, View} from 'react-native';
-import axios from 'axios';
+import { NumericFormat } from 'react-number-format';
+
 import '../Global.js';
+import ProductsService from '../services/ProductsService.js';
 import {windowWidth} from '../Styles';
 import {AuthContext} from '../context/AuthContext';
 import {AxiosContext} from '../context/AxiosContext';
@@ -18,26 +20,11 @@ export default function NewProducts({maxProducts}) {
     //setIndex(0);
     //indexRef.current = index;
 
-    const getProducts = (limit = maxProducts) => {
-        console.log(`Retrieving newest ${limit} products`);
-        setStatus('loading');
-        axiosContext.authAxios
-            .get(`/products?limit=${limit}&`)
-            .then(response => response.data)
-            .then(data => {
-                //console.log(data);
-                setData(data);
-                setLoading(false);
-                setStatus('success');
-            })
-            .catch(error => {
-                setStatus('error');
-                console.error(`Error: ${error}`);
-            });
-    };
-
     useEffect(() => {
-        getProducts();
+        ProductsService.getProducts(maxProducts).then(data => {
+            setData(data);
+            setLoading(false);
+        });
     }, []);
 
     const _renderProduct = product => {
@@ -47,13 +34,18 @@ export default function NewProducts({maxProducts}) {
                     <View>
                         <Image
                             style={styles.slideImage}
-                            source={{uri: `${global.IMAGE_BASE_URI}/products/${product.image}`}}
+                            source={{uri: `${global.API_BASE}/products/${product.id}/image`}}
                         />
                         <Text style={styles.slideTitle}>{product.name}</Text>
-                        <Text style={styles.slideSubtitle}>
-                            {'\u0024'}
-                            {product.price}
-                        </Text>
+                        <NumericFormat
+                            displayType={'text'}
+                            value={product.price}
+                            prefix={'$'}
+                            thousandSeparator={true}
+                            decimalScale={2}
+                            fixedDecimalScale
+                            renderText={(value) =>  <Text style={styles.slideSubtitle}>{value}</Text>}
+                        />
                     </View>
                 ) : (
                     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>

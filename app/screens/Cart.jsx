@@ -1,14 +1,17 @@
 import * as React from 'react';
-import {View, Text, StatusBar} from 'react-native';
-import {styles, backgroundStyle, isDarkMode} from '../Styles';
+import {View} from 'react-native';
+import {styles} from '../Styles';
 
-function Cart({navigation}) {
-  return (
-    <View style={styles.screenContainer}>
-      <Text>Cart Screen</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import '../Global.js';
+import ShoppingCart from '../components/ShoppingCart';
+
+export default function Cart({navigation}) {
+    return (
+        <View style={styles.screenContainer}>
+            <View>
+                <ShoppingCart navigation={navigation} />
+            </View>
+        </View>
+    );
 }
 
-export {Cart};
