@@ -14,6 +14,7 @@ import ProductsService from '../services/ProductsService.js';
 export default function Product({route, navigation}) {
     const {pid, otherParam} = route.params;
     const [text, setText] = useState('');
+    const [productTitle, setProductTitle] = useState('');
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [displayText, setDisplayText] = useState('');
@@ -31,9 +32,13 @@ export default function Product({route, navigation}) {
         ProductsService.getProduct(pid).then(data => {
             //console.log("INSIDE DATA", data);
             setData(data);
+            setProductTitle(data.name);
             setLoading(false);
         });
-    }, [isFocused]);
+        navigation.setOptions({
+            title: productTitle,
+        });
+    }, [isFocused, productTitle, navigation]);
 
     function processInput(evt) {
         /* Vulnerability: command/script injection */
@@ -47,8 +52,6 @@ export default function Product({route, navigation}) {
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 {loading === false ? (
                     <View style={{flex: 1}}>
-                        <Button title="Go back" onPress={() => navigation.navigate('Search')}/>
-
                         <View style={{alignItems: 'center', justifyContent: 'center'}}>
                             <Image
                                 style={styles.productImage}

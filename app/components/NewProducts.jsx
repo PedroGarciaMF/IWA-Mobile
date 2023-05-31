@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, FlatList, Image, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, FlatList, Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import { NumericFormat } from 'react-number-format';
 
 import '../Global.js';
@@ -8,7 +8,7 @@ import {windowWidth} from '../Styles';
 import {AuthContext} from '../context/AuthContext';
 import {AxiosContext} from '../context/AxiosContext';
 
-export default function NewProducts({maxProducts}) {
+export default function NewProducts({navigation, maxProducts = 3}) {
     const axiosContext = useContext(AxiosContext);
     const authContext = useContext(AuthContext);
     const [status, setStatus] = useState('idle');
@@ -31,22 +31,24 @@ export default function NewProducts({maxProducts}) {
         return (
             <View style={styles.slide}>
                 {loading === false ? (
-                    <View>
+                    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Product', {pid: product.id})}>
                         <Image
-                            style={styles.slideImage}
+                            style={styles.thumb}
                             source={{uri: `${global.API_BASE}/products/${product.id}/image`}}
                         />
-                        <Text style={styles.slideTitle}>{product.name}</Text>
-                        <NumericFormat
-                            displayType={'text'}
-                            value={product.price}
-                            prefix={'$'}
-                            thousandSeparator={true}
-                            decimalScale={2}
-                            fixedDecimalScale
-                            renderText={(value) =>  <Text style={styles.slideSubtitle}>{value}</Text>}
-                        />
-                    </View>
+                        <View style={styles.infoContainer}>
+                            <Text style={styles.name}>{product.name}</Text>
+                            <NumericFormat
+                                displayType={'text'}
+                                value={product.price}
+                                prefix={'$'}
+                                thousandSeparator={true}
+                                decimalScale={2}
+                                fixedDecimalScale
+                                renderText={(value) =>  <Text style={styles.price}>{value}</Text>}
+                            />
+                        </View>
+                    </TouchableOpacity>
                 ) : (
                     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                         <ActivityIndicator size="large" />
@@ -97,6 +99,41 @@ export default function NewProducts({maxProducts}) {
     };
 
     const styles = StyleSheet.create({
+        card: {
+            backgroundColor: 'white',
+            borderRadius: 16,
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            shadowColor: 'black',
+            shadowOffset: {
+                height: 0,
+                width: 0,
+            },
+            elevation: 1,
+            marginVertical: 20,
+        },
+        thumb: {
+            flex: 1,
+            height: 140,
+            width: windowWidth * 0.9,
+            //height: 300 * 0.5,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            resizeMode: 'contain',
+            //width: '100%',
+        },
+        infoContainer: {
+            padding: 16,
+        },
+        name: {
+            fontSize: 22,
+            fontWeight: 'bold',
+        },
+        price: {
+            fontSize: 16,
+            fontWeight: '600',
+            marginBottom: 8,
+        },
         slide: {
             height: 300,
             width: windowWidth,
@@ -107,7 +144,7 @@ export default function NewProducts({maxProducts}) {
             alignSelf: 'center',
             justifyContent: 'center',
             paddingTop: 10,
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: '800',
         },
         slideImage: {width: windowWidth * 0.9, height: 300 * 0.7},

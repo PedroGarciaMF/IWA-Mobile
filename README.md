@@ -55,7 +55,7 @@ on how to start up the Metro Bundler and running the application. For example in
 npx react-native start
 ```
 
-then pres `a` for *run or android*, alternatively in another terminal (assuming you are using an Android emulator):
+then press `a` for *run or android*, alternatively in another terminal (assuming you are using an Android emulator):
 
 ```aidl
 npx react-native run-android
@@ -74,7 +74,7 @@ Press `r` in the **react-native** console to reload the appand the application s
 
 TBD
 
-Building the application binary
+Building the Application Binary
 -------------------------------
 
 **Android**

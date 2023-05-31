@@ -62,7 +62,7 @@ env:
   APP_NAME: "IWA-Mobile"
   PARENT_RELEASE_NAME: "main"
   #FCLI_VER: "v1.2.5"
-  FCLI_VER: "dev_develop"
+  FCLI_VER: "dev_2.0.0-beta"
   SCANCENTRAL_VER: "22.2.0"
 
 jobs:

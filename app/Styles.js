@@ -8,7 +8,8 @@ export const backgroundStyle = {
   backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
 };
 
-export const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
+export const {width: windowWidth, height: windowHeight} =
+  Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   screenContainer: {
@@ -45,7 +46,6 @@ export const styles = StyleSheet.create({
   },
   frontSubtitle: {
     textAlign: 'center',
-    padding: 5,
     fontSize: 16,
   },
   frontTitle: {
@@ -107,7 +107,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    marginTop: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   homeButton: {
     padding: 2,
@@ -117,6 +118,10 @@ export const styles = StyleSheet.create({
   imagesContainer: {
     width: windowWidth,
     height: 250,
+  },
+  backButton: {
+    marginLeft: 10,
+    marginTop: 4,
   },
 
   textItem: {
@@ -148,5 +153,22 @@ export const styles = StyleSheet.create({
     borderRadius: 7,
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+
+  featuredTextTitle: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 20,
+  },
+  featuredTextSummary: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 18,
+    paddingBottom: 10,
+  },
+  featuredText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
