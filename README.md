@@ -11,9 +11,9 @@
 
 ## Overview
 
-_IWA-Mobile_ is an insecure [React Native](https://reactnative.dev/) mobile application for use in Micro Focus demonstrations. It includes some examples of bad 
-and insecure code - which can be found using static and mobile security testing tools such 
-as those provided by [Micro Focus Fortify](https://www.microfocus.com/en-us/cyberres/application-security).
+_IWA-Mobile_ is an insecure [React Native](https://reactnative.dev/) mobile application for use in application security demonstrations. 
+It includes some examples of bad  and insecure code - which can be found using static and mobile security testing tools such 
+as those provided by [Fortify by OpenText](https://www.microfocus.com/en-us/cyberres/application-security).
 
 The application is intended to provide the functionality of a typical "online pharmacy", including purchasing Products (medication)
 and requesting Services (prescriptions, health checks etc). 
@@ -29,24 +29,24 @@ your own GitHub account. The process of "forking" is described in detail in the 
 
 ## Setting up the Development Environment
 
+_Note: for this application to run successfully it requires the backend REST API of the related web application
+[IWA-Java](https://github.com/fortify/IWA-Java) to be running. Follow the instructions for setting up
+the environment for this application and then make sure it is running using `mvn spring-boot:run`._
+
 Go to the React Native setup documentation [https://reactnative.dev/docs/environment-setup](https://reactnative.dev/docs/environment-setup)
 and follow the instructions under **React Native CLI Quickstart** for your preferred operating
 system and target device/emulator.
 
-Clone the repository (preferably your fork from above) and then install all of the required packages
-using:
+Clone the repository (preferably your fork from above) and then install all the required third-party packages using:
 
 ```aidl
 npm install
 ```
 
-This application requires the backend API from
-[IWAPharmacyDirect](https://github.com/fortify-presales/IWAPharmacyDirect). Follow the instructions for setting up
-the environment for this application and then ensure it is running, for example run `.\gradlew bootRun` in this 
-applications home directory.
-
 Running the Application
 -----------------------
+
+**Android**
 
 Follow the instructions from [https://reactnative.dev/docs/environment-setup](https://reactnative.dev/docs/environment-setup)
 on how to start up the Metro Bundler and running the application. For example in one terminal, run
@@ -55,16 +55,37 @@ on how to start up the Metro Bundler and running the application. For example in
 npx react-native start
 ```
 
-and then in another terminal (assuming you are using an Android emulator):
+then press `a` for *run or android*, alternatively in another terminal (assuming you are using an Android emulator):
 
 ```aidl
 npx react-native run-android
 ```
 
+If your environment is configured correctly, the Android emulator should startup with the application running.
 Finally, to create a proxy from the IWA API running locally to the application running on the emulator:
 
 ```aidl
 adb reverse tcp:8888 tcp:8888
 ```
 
-The application should now be ready to use.
+Press `r` in the **react-native** console to reload the appand the application should now be ready to use.
+
+**iOS**
+
+TBD
+
+Building the Application Binary
+-------------------------------
+
+**Android**
+
+To build the Android `.apk` run the following:
+
+```
+cd android
+.\gradlew assembleRelease
+```
+
+**iOS**
+
+TBD

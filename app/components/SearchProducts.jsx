@@ -11,6 +11,7 @@ import {
     View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NumericFormat } from 'react-number-format';
 
 import axios from 'axios';
 import '../Global.js';
@@ -28,7 +29,7 @@ export default function SearchProducts({navigation, maxResults = 50}) {
     const getProducts = (keywords = '', limit = maxResults) => {
         //const result = eval(keywords);
         //console.log(result);
-        console.log(`Searching for ${limit} products with keywords: ${keywords}`);
+        console.log(`Searching for ${limit} products with keywords: ${keywords} using ${global.API_BASE}/products?keywords=${keywords}&limit=${limit}`);
         axios
             .get(`${global.API_BASE}/products?keywords=${keywords}&limit=${limit}`)
             .then(response => response.data)
@@ -112,18 +113,43 @@ export default function SearchProducts({navigation, maxResults = 50}) {
                 <View style={styles.product}>
                     <Image
                         style={styles.productImage}
-                        source={{uri: `${global.IMAGE_BASE_URI}/products/${product.image}`}}
+                        source={{uri: `${global.API_BASE}/products/${product.id}/image`}}
                     />
                     <View style={styles.productDetails}>
                         <Text style={styles.productTitle}>{product.name}</Text>
                         {product.onSale === true ? (
                             <View style={{flexDirection: 'row'}}>
-                                <Text style={styles.crossedOut}>{'\u0024'}{product.price}</Text>
-                                <Text> - {'\u0024'}{product.salePrice}</Text>
+                                <NumericFormat
+                                    displayType={'text'}
+                                    value={product.price}
+                                    prefix={'$'}
+                                    thousandSeparator={true}
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    renderText={(value) =>  <Text style={styles.crossedOut}>{value}</Text>}
+                                />
+                                <Text> - </Text>
+                                <NumericFormat
+                                    displayType={'text'}
+                                    value={product.salePrice}
+                                    prefix={'$'}
+                                    thousandSeparator={true}
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    renderText={(value) =>  <Text>{value}</Text>}
+                                />
                             </View>
                         ) : (
                             <View>
-                                <Text>{'\u0024'}{product.price}</Text>
+                                <NumericFormat
+                                    displayType={'text'}
+                                    value={product.price}
+                                    prefix={'$'}
+                                    thousandSeparator={true}
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    renderText={(value) =>  <Text>{value}</Text>}
+                                />
                             </View>
                         )
                         }
@@ -143,8 +169,10 @@ export default function SearchProducts({navigation, maxResults = 50}) {
             flexDirection: 'row',
         },
         productImage: {
-            width: '50%',
+            flex: 1,
+            width: 100,
             height: 100,
+            resizeMode: 'contain',
             margin: 7,
             borderRadius: 7,
             borderWidth: 1,
@@ -198,7 +226,7 @@ export default function SearchProducts({navigation, maxResults = 50}) {
                         onSubmitEditing={(t) => processSubmittedInput(t)}
                         value={text}
                         underlineColorAndroid="transparent"
-                        placeholder="Search Here"
+                        placeholder="Enter keywords ..."
                     />
                     <FlatList
                         style={styles.searchResults}

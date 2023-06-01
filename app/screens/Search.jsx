@@ -1,7 +1,7 @@
 import React from 'react';
-import {Button, View} from 'react-native';
+import {View} from 'react-native';
+import {styles} from '../Styles'
 
-import {styles} from '../Styles';
 import '../Global.js';
 import SearchProducts from '../components/SearchProducts';
 
