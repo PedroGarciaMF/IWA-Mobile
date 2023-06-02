@@ -74,8 +74,8 @@ Press `r` in the **react-native** console to reload the appand the application s
 
 TBD
 
-Building the Application Binary
--------------------------------
+Building and Installing the Application Binary
+----------------------------------------------
 
 **Android**
 
@@ -84,6 +84,19 @@ To build the Android `.apk` run the following:
 ```
 cd android
 .\gradlew assembleRelease
+```
+
+Attach your android device via USB and run:
+
+```
+adb devices
+```
+
+to list your attached device id. Then install it using a command similar
+to the following:
+
+```
+adb -S YOUR_DEVICE_ID install "FULL_PATH_TO\android\app\build\outputs\apk\release\app-release.apk"
 ```
 
 **iOS**
