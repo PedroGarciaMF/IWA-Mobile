@@ -1,7 +1,27 @@
+/*
+        IWA-Mobile - Insecure mobile application
+
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {ActivityIndicator, ScrollView, Button, Image, StatusBar, Text, TextInput, View, Alert} from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+import { Rating } from 'react-native-elements';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 import { NumericFormat } from 'react-number-format';
 
 import {styles, windowWidth} from '../Styles';
@@ -15,23 +35,24 @@ export default function Product({route, navigation}) {
     const {pid, otherParam} = route.params;
     const [text, setText] = useState('');
     const [productTitle, setProductTitle] = useState('');
-    const [data, setData] = useState([]);
+    const [item, setItem] = useState([]);
     const [loading, setLoading] = useState(true);
     const [displayText, setDisplayText] = useState('');
 
     const { addItemToCart } = useContext(CartContext);
     const isFocused = useIsFocused();
+    const { colors } = useTheme();
 
     function onAddToCart() {
         console.log("Product::onAddToCart");
-        Alert.alert(`You have added ${data.name} to your cart.`);
-        addItemToCart(data);
+        Alert.alert(`You have added ${item.name} to your cart.`);
+        addItemToCart(item);
     }
 
     useEffect(() => {
         ProductsService.getProduct(pid).then(data => {
             //console.log("INSIDE DATA", data);
-            setData(data);
+            setItem(data);
             setProductTitle(data.name);
             setLoading(false);
         });
@@ -55,12 +76,23 @@ export default function Product({route, navigation}) {
                         <View style={{alignItems: 'center', justifyContent: 'center'}}>
                             <Image
                                 style={styles.productImage}
-                                source={{uri: `${global.API_BASE}/products/${data.id}/image`}}
+                                source={{uri: `${global.API_BASE}/products/${item.id}/image`}}
                             />
-                            <Text style={{fontSize: 24}}>{data.name}</Text>
+                            <Text style={{fontSize: 24}}>{item.name}</Text>
+
+                            <Rating type='custom'
+                                    readonly
+                                    imageSize={15}
+                                    ratingColor='#3498db'
+                                    ratingBackgroundColor={colors.background}
+                                    tintColor={colors.background}
+                                    startingValue={item.rating}
+                                    style={styles.rating}
+                            />
+
                             <NumericFormat
                                 displayType={'text'}
-                                value={data.price}
+                                value={item.price}
                                 prefix={'$'}
                                 thousandSeparator={true}
                                 decimalScale={2}
@@ -86,9 +118,9 @@ export default function Product({route, navigation}) {
                         </View>
                         <View style={{paddingLeft: 20, paddingRight: 20}}>
                             <Text style={{fontWeight: 'bold', paddingBottom: 10}}>Summary</Text>
-                            <Text style={{fontSize: 12, textAlign: 'justify'}}>{data.summary}</Text>
+                            <Text style={{fontSize: 12, textAlign: 'justify'}}>{item.summary}</Text>
                             <Text style={{fontWeight: 'bold', paddingTop: 10, paddingBottom: 10}}>Description</Text>
-                            <Text style={{fontSize: 12, textAlign: 'justify'}}>{data.description}</Text>
+                            <Text style={{fontSize: 12, textAlign: 'justify'}}>{item.description}</Text>
                         </View>
                         <View style={{padding: 20}}>
                             <Text style={{fontWeight: 'bold'}}>Customer Reviews</Text>

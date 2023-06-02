@@ -1,7 +1,27 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Image, StyleSheet, TouchableWithoutFeedback} from 'react-native';
+/*
+        IWA-Mobile - Insecure mobile application
 
-import {NavigationContainer} from '@react-navigation/native';
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {Image, StyleSheet, TouchableWithoutFeedback, useColorScheme} from 'react-native';
+import { Avatar } from "react-native-elements";
+
+import {NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icons from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -22,9 +42,10 @@ import More from '../screens/More';
 
 export default function Navigation() {
     const [status, setStatus] = useState('loading');
-    const [cartCount, setCartCount] = useState(0);
     const {getItemsCount} = useContext(CartContext);
     const authContext = useContext(AuthContext);
+
+    const scheme = useColorScheme();
 
     const loadJWT = useCallback(async () => {
         try {
@@ -32,7 +53,7 @@ export default function Navigation() {
             if (value) {
                 const jwt = JSON.parse(value.password);
                 if (jwt != null) {
-                    console.log(`Navigation::loadJWT: Token is {jwt}`);
+                    console.log(`Navigation::loadJWT: token is ${jwt}`);
                 }
                 authContext.setAuthState({
                     accessToken: jwt.accessToken || null,
@@ -58,23 +79,21 @@ export default function Navigation() {
         }
     }, []);
 
-    function LogoTitle() {
-        return (
-            <Image
-                style={{width: 150, height: 50}}
-                source={require('../assets/img/logo.png')}
-            />
-        );
-    }
-
     useEffect(() => {
-        setCartCount(1);
         loadJWT().then(r => { if (r) console.log(`Navigation::useEffect: loadJWT: ${r}`)});
     }, [loadJWT]);
+
+    let user = {};
 
     const Tab = createBottomTabNavigator();
 
     const styles = StyleSheet.create({
+        logoTitle: {
+            flex: 1,
+            width: 150,
+            height: 50,
+            resizeMode: 'contain',
+        },
         backButton: {
             marginLeft: 10,
             marginTop: 4,
@@ -85,8 +104,17 @@ export default function Navigation() {
         },
     });
 
+    function LogoTitle() {
+        return (
+            <Image
+                style={styles.logoTitle}
+                source={require('../assets/img/logo.png')}
+            />
+        );
+    }
+
     return (
-        <NavigationContainer>
+        <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Tab.Navigator backBehaviour="history"
                            screenOptions={({route, navigation}) => ({
                                headerStyle: {
@@ -97,11 +125,13 @@ export default function Navigation() {
                                    fontWeight: 'bold',
                                },
                                headerRight: () => (
-                                   <TouchableWithoutFeedback
-                                       style={styles.backButton}
-                                       onPress={() => navigation.navigate('Account')}>
-                                       <Icon name="user" size={20} color="#fff" style={styles.userButton}/>
-                                   </TouchableWithoutFeedback>
+                                   <Avatar
+                                       source={require('../assets/img/avatar.png')}
+                                       rounded
+                                       onPress={() => navigation.navigate('Account')}
+                                       activeOpacity={0.7}
+                                       containerStyle={{marginRight: 10, padding: 4}}
+                                   />
                                ),
                                tabBarIcon: ({focused, color, size}) => {
                                    let iconName;

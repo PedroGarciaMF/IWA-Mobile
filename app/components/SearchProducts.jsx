@@ -1,3 +1,22 @@
+/*
+        IWA-Mobile - Insecure mobile application
+
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import React, {useEffect, useState} from 'react';
 import {
     ActivityIndicator,
@@ -10,10 +29,12 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { Rating } from 'react-native-elements';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NumericFormat } from 'react-number-format';
-
 import axios from 'axios';
+
 import '../Global.js';
 import {windowWidth} from '../Styles';
 
@@ -25,6 +46,8 @@ export default function SearchProducts({navigation, maxResults = 50}) {
     const [loading, setLoading] = useState(true);
     const [inputText, setInputText] = useState('');
     const [outputText, setOutputText] = useState('');
+    const isFocused = useIsFocused();
+    const { colors } = useTheme();
 
     const getProducts = (keywords = '', limit = maxResults) => {
         //const result = eval(keywords);
@@ -116,7 +139,19 @@ export default function SearchProducts({navigation, maxResults = 50}) {
                         source={{uri: `${global.API_BASE}/products/${product.id}/image`}}
                     />
                     <View style={styles.productDetails}>
+
                         <Text style={styles.productTitle}>{product.name}</Text>
+
+                        <Rating type='custom'
+                                readonly
+                                imageSize={15}
+                                ratingColor='#3498db'
+                                ratingBackgroundColor={colors.background}
+                                tintColor={colors.background}
+                                startingValue={product.rating}
+                                style={styles.rating}
+                        />
+
                         {product.onSale === true ? (
                             <View style={{flexDirection: 'row'}}>
                                 <NumericFormat
@@ -213,6 +248,11 @@ export default function SearchProducts({navigation, maxResults = 50}) {
         numResults: {
             paddingTop: 10,
             textAlign: 'center',
+        },
+        rating: {
+            paddingTop: 5,
+            paddingBottom: 5,
+            marginRight: "auto",
         },
     });
 

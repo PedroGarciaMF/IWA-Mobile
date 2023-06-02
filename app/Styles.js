@@ -27,23 +27,6 @@ export const styles = StyleSheet.create({
   listContainer: {
     width: windowWidth,
   },
-  searchContainer: {
-    width: windowWidth,
-    flexGrow: 1,
-  },
-  searchBar: {
-    fontSize: 18,
-    margin: 10,
-    width: '95%',
-    height: 50,
-    backgroundColor: 'white',
-  },
-  item: {
-    backgroundColor: '#f9c2ff',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
   frontSubtitle: {
     textAlign: 'center',
     fontSize: 16,
@@ -56,50 +39,9 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     backgroundColor: '#000000c0',
   },
-  title: {
-    fontSize: 32,
-  },
-  itemText: {
-    textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
-    width: '100%',
-    height: 50,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
   image: {
     flex: 1,
     justifyContent: 'center',
-  },
-  text: {
-    color: 'white',
-    fontSize: 42,
-    lineHeight: 84,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    backgroundColor: '#000000c0',
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    padding: 20,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -115,15 +57,10 @@ export const styles = StyleSheet.create({
     width: '40%',
     height: 40,
   },
-  imagesContainer: {
-    width: windowWidth,
-    height: 250,
-  },
   backButton: {
     marginLeft: 10,
     marginTop: 4,
   },
-
   textItem: {
     marginTop: 5,
     fontSize: 16,
@@ -143,7 +80,6 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     width: 300,
   },
-
   productImage: {
     flex: 1,
     width: 100,
@@ -154,7 +90,6 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
   },
-
   featuredTextTitle: {
     color: '#fff',
     textAlign: 'center',
@@ -170,5 +105,10 @@ export const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontSize: 16,
+  },
+  rating: {
+    paddingTop: 5,
+    paddingBottom: 5,
+    marginRight: 'auto',
   },
 });

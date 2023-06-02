@@ -1,5 +1,26 @@
+/*
+        IWA-Mobile - Insecure mobile application
+
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import React from 'react';
-import {Alert, Button, ImageBackground, ScrollView, StatusBar, Text, View} from 'react-native';
+import {Alert, ImageBackground, ScrollView, StatusBar, Text, View} from 'react-native';
+import { Button } from 'react-native-elements';
+
 import {Card, Icon} from 'react-native-elements';
 import {HStack} from 'react-native-flex-layout';
 import '../Global.js';
@@ -21,14 +42,15 @@ export default function Home({navigation}) {
                         <HStack align="center" spacing={20}>
                             <View>
                                 <Button
-                                    title="Register"
+                                    title="REGISTER"
+                                    raised={true}
                                     style={styles.button}
                                     onPress={() => Alert.alert('Register Button pressed')}
                                 />
                             </View>
                             <View>
                                 <Button
-                                    title="Shop Now"
+                                    title="SHOP NOW"
                                     style={styles.button}
                                     onPress={() => navigation.navigate('Search')}
                                 />
