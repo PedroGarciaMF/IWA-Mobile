@@ -80,15 +80,39 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     width: 300,
   },
+  productLeft: {
+    flex: 1,
+    marginLeft: 'auto',
+  },
+  productRight: {
+    flex: 1,
+    marginRight: 'auto',
+  },
   productImage: {
     flex: 1,
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
     margin: 7,
     borderRadius: 7,
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  productTitle: {
+    fontSize: 18,
+  },
+  productPrice: {
+    fontSize: 14,
+  },
+  productPriceCrossedOut: {
+    fontSize: 14,
+    flexDirection: 'row',
+    textDecorationLine: 'line-through',
+    textDecorationStyle: 'solid',
+  },
+  stockBadge: {
+    marginRight: 'auto',
+    paddingTop: 5,
   },
   featuredTextTitle: {
     color: '#fff',
