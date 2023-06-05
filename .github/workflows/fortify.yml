@@ -16,14 +16,17 @@
 # assistance with configuration, feel free to create a help ticket in the Fortify on Demand portal.                                            #
 ################################################################################################################################################
 
-# Create GitHub Action Secrets for your version of the application:
+# Create GitHub Action Repository Variables for your version of the application:
 #   FOD_BASE_URL should be FoD BASE URL for your tenant (e.g. https://emea.fortify.com)
 #   FOD_API_URI should be FoD API URI for your tenant (e.g. https://api.emea,fortify.com)
-#   FOD_CLIENT_ID/FOD_CLIENT_SECRET API Credentials should be obtained from your FoD tenant.
-#   FOD_PARENT_RELEASE_NAME is the FoD release name corresponding to the parent branch of any newly created branch, this is typically "master" or "main"
+#   FOD_PARENT_RELEASE_NAME is the FoD release name corresponding to the parent branch of any newly created branch, this is typically "main"
+# Create GitHub Action Secrets for your version of the application:
+#   FOD_CLIENT_ID should be an API Key obtained from your FoD tenant.
+#   FOD_CLIENT_SECRET should be the secret for the API Key obtained for your FoD tenant.
 # Helpful hints:
-#   Credentials should be obtained from your FoD tenant, under Administration -> Settings -> API and 'Security Lead' Role selected.
-#   Automated Audit preference should be configured for the release's Static Scan Settings in the Fortify on Demand portal.
+#   API Key credentials can be obtained from your FoD tenant, under Administration -> Settings -> API
+#   It is recommended to create credentials with 'Security Lead' Role selected.
+#   "Automated Audit preference" should be configured for the release's Static Scan Settings.
 
 name: Fortify Security Scan
 
@@ -59,8 +62,7 @@ on:
 
 # Global environment variables
 env:
-  APP_NAME: "IWA-Mobile"
-  PARENT_RELEASE_NAME: "main"
+  DEFAULT_APP_NAME: "IWA-Mobile"
   #FCLI_VER: "v1.2.5"
   FCLI_VER: "dev_2.0.0-beta"
   SCANCENTRAL_VER: "22.2.0"
@@ -103,6 +105,20 @@ jobs:
       # If this run was triggered by a pull request event, then checkout the head of the pull request instead of the merge commit.
       - run: git checkout HEAD^2
         if: ${{ github.event_name == 'pull_request' }}
+
+      - name: Set FOD App Name
+        shell: bash
+        run: |
+          if [[ -n "$FOD_APP_NAME" ]]; then
+            echo "Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+          else
+            echo "Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          fi
+        env:
+          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
 
       # Java is required to run the various Fortify utilities.
       # Setup JDK 11 on host
@@ -157,14 +173,15 @@ jobs:
       - name: Create FoD release
         shell: bash
         run: |
-          fcli fod release list --app "$APP_NAME" --session github-actions
-          RELID=$(fcli fod release create "${APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from $FOD_PARENT_RELEASE_NAME --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
+          fcli fod release list --app "$FOD_APP_NAME" --session github-actions
+          RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from $FOD_PARENT_RELEASE_NAME --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
           echo "Created FOD_RELEASE_ID=${RELID}"
           echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
         id: create_fod_release
         env:
+          FOD_APP_NAME: ${{ env.FOD_APP_NAME}
           FOD_RELEASE_NAME: ${{ steps.extract_branch.outputs.branch }}
-          FOD_PARENT_RELEASE_NAME: "main"
+          FOD_PARENT_RELEASE_NAME: ${{ vars.FOD_PARENT_RELEASE_NAME}
 
       # For Debricked OSS scanning with FoD we need a dependencies file.
       # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
@@ -230,17 +247,17 @@ jobs:
         id: perform_sast_scan
         env:
           PACKAGE_FILE: "package.zip"
-          FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.APP_NAME, steps.extract_branch.outputs.branch) }}
+          FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
           FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
       # Pull SAST issues from Fortify on Demand and generate GitHub-optimized SARIF output
       - name: Export Results
         uses: fortify/gha-export-vulnerabilities@v1
         with:
-          fod_base_url: ${{ secrets.FOD_BASE_URL }}
+          fod_base_url: ${{ vars.FOD_BASE_URL }}
           fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
           fod_client_secret: ${{ secrets.FOD_CLIENT_SECRET }}
-          fod_release_name: ${{ format('{0}:{1}', env.APP_NAME, steps.extract_branch.outputs.branch) }}
+          fod_release_name: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
 
       # Check if SARIF output file has been created
       - name: Check file existence
@@ -282,6 +299,20 @@ jobs:
       - name: Install Dependencies
         run: npm install --only=prod
 
+      - name: Set FOD App Name
+        shell: bash
+        run: |
+          if [[ -n "$FOD_APP_NAME" ]]; then
+            echo "Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+          else
+            echo "Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          fi
+        env:
+          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
+
       # Get the branch name or pr number
       - name: Extract branch name
         shell: bash
@@ -317,7 +348,7 @@ jobs:
           fcli --version
           fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
         env:
-          FOD_API_URI: ${{ secrets.FOD_API_URI }}
+          FOD_API_URI: ${{ vars.FOD_API_URI }}
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
           FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 
@@ -331,7 +362,7 @@ jobs:
         id: perform_mobile_scan
         env:
           APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
-          FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.APP_NAME, steps.extract_branch.outputs.branch) }}
+          FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
           FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
       # Logout/Close Fortify on Demand fcli session
@@ -353,6 +384,20 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+
+      - name: Set FOD App Name
+        shell: bash
+        run: |
+          if [[ -n "$FOD_APP_NAME" ]]; then
+            echo "Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+          else
+            echo "Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          fi
+        env:
+          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
 
       # Get the branch name or pr number
       - name: Extract branch name
@@ -385,7 +430,7 @@ jobs:
           fcli --version
           fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
         env:
-          FOD_API_URI: ${{ secrets.FOD_API_URI }}
+          FOD_API_URI: ${{ vars.FOD_API_URI }}
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
           FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 
@@ -393,10 +438,11 @@ jobs:
       - name: Verify Security Policy
         shell: bash
         run: |
-          fcli fod release get "${APP_NAME}:${FOD_RELEASE_NAME}" -o expr="Critical:\t{critical}\nHigh:\t\t{high}\nMedium:\t\t{medium}\nLow:\t\t{low}" --session github-actions
-          if [ $(fcli fod release get "${APP_NAME}:${FOD_RELEASE_NAME}" -o expr="{isPassed}" --session github-actions) = 'true' ]; then echo "Security policy: passed"; else echo "Security policy: failed"; fi
+          fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="Critical:\t{critical}\nHigh:\t\t{high}\nMedium:\t\t{medium}\nLow:\t\t{low}" --session github-actions
+          if [ $(fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="{isPassed}" --session github-actions) = 'true' ]; then echo "Security policy: passed"; else echo "Security policy: failed"; fi
         id: verify_security_policy
         env:
+          FOD_APP_NAME: ${{ env.FOD_APP_NAME}
           FOD_RELEASE_NAME: ${{ steps.extract_branch.outputs.branch }}
 
       # Logout/Close Fortify on Demand fcli session
