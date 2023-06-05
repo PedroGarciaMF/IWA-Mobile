@@ -109,12 +109,12 @@ jobs:
       - name: Set FOD App Name
         shell: bash
         run: |
-          if [[ -n "$FOD_APP_NAME" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
-          else
+          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          else
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
@@ -304,12 +304,12 @@ jobs:
       - name: Set FOD App Name
         shell: bash
         run: |
-          if [[ -n "$FOD_APP_NAME" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
-          else
+          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          else
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
@@ -392,12 +392,12 @@ jobs:
       - name: Set FOD App Name
         shell: bash
         run: |
-          if [[ -n "$FOD_APP_NAME" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
-          else
+          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          else
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
