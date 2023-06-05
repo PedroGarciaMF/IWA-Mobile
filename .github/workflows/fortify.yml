@@ -179,7 +179,7 @@ jobs:
           echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
         id: create_fod_release
         env:
-          FOD_APP_NAME: ${{ env.FOD_APP_NAME}
+          FOD_APP_NAME: ${{ env.FOD_APP_NAME }}
           FOD_RELEASE_NAME: ${{ steps.extract_branch.outputs.branch }}
           FOD_PARENT_RELEASE_NAME: ${{ vars.FOD_PARENT_RELEASE_NAME}
 
