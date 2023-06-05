@@ -110,10 +110,10 @@ jobs:
         shell: bash
         run: |
           if [[ -n "$FOD_APP_NAME" ]]; then
-            echo "Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
             echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           else
-            echo "Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           fi
         env:
@@ -145,6 +145,7 @@ jobs:
           else
             BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
           fi
+          echo "::debug::branch=${BRANCH_NAME}"
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
         env:
           SOURCE_BRANCH: ${{ github.head_ref }}
@@ -156,6 +157,7 @@ jobs:
         run: |
           mkdir -p $HOME/fcli/bin
           curl -fsSL https://github.com/fortify-ps/fcli/releases/download/${FCLI_VER}/fcli-linux.tgz | tar -zxvf - -C $HOME/fcli/bin
+          echo "::debug::PATH=$HOME/fcli/bin"
           echo "$HOME/fcli/bin" >> $GITHUB_PATH
 
       # Login to Fortify on Demand fcli session
@@ -165,7 +167,7 @@ jobs:
           fcli --version
           fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
         env:
-          FOD_API_URI: ${{ secrets.FOD_API_URI }}
+          FOD_API_URI: ${{ vars.FOD_API_URI }}
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
           FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 
@@ -175,7 +177,7 @@ jobs:
         run: |
           fcli fod release list --app "$FOD_APP_NAME" --session github-actions
           RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from $FOD_PARENT_RELEASE_NAME --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-          echo "Created FOD_RELEASE_ID=${RELID}"
+          echo "::debug::Created FOD_RELEASE_ID=${RELID}"
           echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
         id: create_fod_release
         env:
@@ -303,10 +305,10 @@ jobs:
         shell: bash
         run: |
           if [[ -n "$FOD_APP_NAME" ]]; then
-            echo "Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
             echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           else
-            echo "Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           fi
         env:
@@ -324,6 +326,7 @@ jobs:
           else
             BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
           fi
+          echo "::debug::branch=${BRANCH_NAME}"         
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
         env:
           SOURCE_BRANCH: ${{ github.head_ref }}
@@ -335,6 +338,7 @@ jobs:
         run: |
           mkdir -p $HOME/fcli/bin
           curl -fsSL https://github.com/fortify-ps/fcli/releases/download/${FCLI_VER}/fcli-linux.tgz | tar -zxvf - -C $HOME/fcli/bin
+          echo "::debug::PATH=$HOME/fcli/bin"         
           echo "$HOME/fcli/bin" >> $GITHUB_PATH
 
       - name: Build Android Release
@@ -389,10 +393,10 @@ jobs:
         shell: bash
         run: |
           if [[ -n "$FOD_APP_NAME" ]]; then
-            echo "Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
             echo "FOD_APP_NAME="$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           else
-            echo "Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME="$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           fi
         env:
@@ -410,6 +414,7 @@ jobs:
           else
             BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
           fi
+          echo "::debug::branch=${BRANCH_NAME}"         
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
         env:
           SOURCE_BRANCH: ${{ github.head_ref }}
@@ -421,6 +426,7 @@ jobs:
         run: |
           mkdir -p $HOME/fcli/bin
           curl -fsSL https://github.com/fortify-ps/fcli/releases/download/${FCLI_VER}/fcli-linux.tgz | tar -zxvf - -C $HOME/fcli/bin
+          echo "::debug::PATH=$HOME/fcli/bin"          
           echo "$HOME/fcli/bin" >> $GITHUB_PATH
 
       # Login Fortify on Demand fcli session
