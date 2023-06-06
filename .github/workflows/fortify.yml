@@ -106,21 +106,6 @@ jobs:
       - run: git checkout HEAD^2
         if: ${{ github.event_name == 'pull_request' }}
 
-      - name: Set FOD App Name
-        shell: bash
-        run: |
-          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
-          else
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME=$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
-          fi
-        env:
-          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
-          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
-        id: set_fod_app_name
-
       # Java is required to run the various Fortify utilities.
       # Setup JDK 11 on host
       - uses: actions/setup-java@v3
@@ -134,6 +119,22 @@ jobs:
           node-version: 16
       - name: Install Dependencies
         run: npm install --only=prod
+
+      # set the FOD app name to be used throughout the workflow
+      - name: Set FoD app name
+        shell: bash
+        run: |
+          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+          else
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
+            echo "FOD_APP_NAME=$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+          fi
+        env:
+          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
+        id: set_fod_app_name
 
       # Get the branch name or pr number
       - name: Extract branch name
@@ -302,7 +303,8 @@ jobs:
       - name: Install Dependencies
         run: npm install --only=prod
 
-      - name: Set FOD App Name
+      # set the FOD app name to be used throughout the workflow
+      - name: Set FoD app name
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
@@ -391,7 +393,8 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Set FOD App Name
+      # set the FOD app name to be used throughout the workflow
+      - name: Set FoD app name
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then

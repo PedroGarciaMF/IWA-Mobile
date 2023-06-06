@@ -37,7 +37,7 @@ const CartProvider = ({children}) => {
   }, [items]);
 
   const addItemToCart = ({id}) => {
-    console.log(`Adding product id: ${id} to cart`);
+    console.log(`CartContext::addItemToCart: adding product id: ${id} to cart`);
     ProductsService.getProduct(id).then(product => {
       //console.log('INSIDE DATA', product);
       const pid = product.id;

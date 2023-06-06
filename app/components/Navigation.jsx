@@ -18,10 +18,10 @@
 */
 
 import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Image, StyleSheet, TouchableWithoutFeedback, useColorScheme} from 'react-native';
-import { Avatar } from "react-native-elements";
+import {Image, StyleSheet, Text, useColorScheme, View} from 'react-native';
 
-import {NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import {NavigationContainer, DefaultTheme, DarkTheme, getFocusedRouteNameFromRoute} from '@react-navigation/native';
+import { HeaderBackButton } from '@react-navigation/elements'
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icons from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -31,7 +31,9 @@ import Keychain from 'react-native-keychain';
 import '../Global.js';
 
 import {CartContext} from '../context/CartContext';
-import {AuthContext} from '../context/AuthContext';
+import {AuthContext, AuthProvider} from '../context/AuthContext';
+
+import WithBadge from "../components/WithBadge";
 
 import Home from '../screens/Home';
 import Search from '../screens/Search';
@@ -39,51 +41,75 @@ import Cart from '../screens/Cart';
 import Product from '../screens/Product';
 import Account from '../screens/Account';
 import More from '../screens/More';
+import UsersService from '../services/UsersService';
+import axios from 'axios';
 
 export default function Navigation() {
     const [status, setStatus] = useState('loading');
     const {getItemsCount} = useContext(CartContext);
+    const [messageCount, setMessageCount] = useState(1);
     const authContext = useContext(AuthContext);
 
     const scheme = useColorScheme();
 
     const loadJWT = useCallback(async () => {
+        //console.log(`Navigation::loadJWT`);
         try {
             const value = await Keychain.getGenericPassword();
             if (value) {
                 const jwt = JSON.parse(value.password);
                 if (jwt != null) {
-                    console.log(`Navigation::loadJWT: token is ${jwt}`);
+                    console.log(`Navigation::loadJWT: access token is ${jwt.accessToken}`);
                 }
                 authContext.setAuthState({
-                    accessToken: jwt.accessToken || null,
-                    refreshToken: jwt.refreshToken || null,
-                    authenticated: jwt.accessToken !== null,
+                    id: jwt.id,
+                    accessToken: jwt.accessToken,
+                    refreshToken: jwt.refreshToken,
+                    authenticated: true,
                 });
+                //console.log(authContext?.authState?.id)
+                axios.defaults.headers.common['Authorization'] = `Bearer ${jwt.accessToken}`;
                 setStatus('success');
+                return authContext?.authState;
             } else {
                 authContext.setAuthState({
+                    id: null,
                     accessToken: null,
                     refreshToken: null,
                     authenticated: false,
                 });
             }
+            return authContext?.authState;
         } catch (error) {
             setStatus('error');
             console.log(`Navigation::loadJWT: Keychain Error: ${error.message}`);
             authContext.setAuthState({
+                id: null,
                 accessToken: null,
                 refreshToken: null,
                 authenticated: false,
             });
+            return authContext?.authState;
         }
     }, []);
 
     useEffect(() => {
-        loadJWT().then(r => { if (r) console.log(`Navigation::useEffect: loadJWT: ${r}`)});
+        loadJWT().then(data => {
+            // ignore
+        });
     }, [loadJWT]);
 
-    let user = {};
+    useEffect(() => {
+        if (authContext?.authState?.authenticated) {
+            let userId = authContext?.authState?.id;
+            UsersService.getUnreadMessageCount(userId).then(data => {
+                //console.log("INSIDE DATA", data);
+                setMessageCount(data);
+            })
+        } else {
+            setMessageCount(0);
+        }
+    }, [authContext])
 
     const Tab = createBottomTabNavigator();
 
@@ -92,6 +118,7 @@ export default function Navigation() {
             flex: 1,
             width: 150,
             height: 50,
+            marginLeft: 'auto',
             resizeMode: 'contain',
         },
         backButton: {
@@ -102,7 +129,12 @@ export default function Navigation() {
             marginRight: 10,
             marginTop: 4,
         },
+        headerRight: {
+            marginRight: 15,
+        },
     });
+
+    const BadgedIcon = WithBadge(messageCount)(Icon)
 
     function LogoTitle() {
         return (
@@ -113,9 +145,57 @@ export default function Navigation() {
         );
     }
 
+    function getHeaderTitle(route) {
+        switch (route.name) {
+            case 'Home':
+                return 'Home';
+            case 'Search':
+                return 'Product Search';
+            case 'Cart':
+                return 'Shopping Cart';
+            case 'Account':
+                return 'Your Account';
+            case 'More':
+                return 'More';
+            case 'Product':
+                // set in product screen
+                break;
+            default:
+                return 'Home';
+        }
+    }
+
+    function getHeaderRight(route, authContext) {
+        return (
+
+                    <View style={styles.headerRight}>
+                        <BadgedIcon type="fontawesome" name="envelope" size={20} color="#fff" />
+                    </View>
+
+        );
+    }
+
+    function getIconName(route, focused) {
+        switch (route.name) {
+            case 'Home':
+                return focused ? 'home' : 'home';
+            case 'Search':
+                return focused ? 'search' : 'search';
+            case 'Cart':
+                return focused ? 'shopping-cart' : 'shopping-cart';
+            case 'Account':
+                return focused ? 'user' : 'user';
+            case 'More':
+                return focused ? 'ellipsis-h' : 'ellipsis-h';
+            default:
+                return focused ? 'home' : 'home';
+        }
+    }
+
     return (
         <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Tab.Navigator backBehaviour="history"
+            <Tab.Navigator
+                           backBehaviour="history"
                            screenOptions={({route, navigation}) => ({
                                headerStyle: {
                                    backgroundColor: '#3c3d41',
@@ -124,30 +204,17 @@ export default function Navigation() {
                                headerTitleStyle: {
                                    fontWeight: 'bold',
                                },
-                               headerRight: () => (
-                                   <Avatar
-                                       source={require('../assets/img/avatar.png')}
-                                       rounded
-                                       onPress={() => navigation.navigate('Account')}
-                                       activeOpacity={0.7}
-                                       containerStyle={{marginRight: 10, padding: 4}}
-                                   />
-                               ),
+                               headerTitleAlign: 'left',
+                               headerTitle: getHeaderTitle(route),
+                               headerRight: () => {
+                                   return (
+                                        <View style={styles.headerRight}>
+                                            <BadgedIcon type="fontawesome" name="envelope" size={20} color="#fff" />
+                                        </View>
+                                   )
+                               },
                                tabBarIcon: ({focused, color, size}) => {
-                                   let iconName;
-
-                                   if (route.name === 'Home') {
-                                       iconName = focused ? 'home' : 'home';
-                                   } else if (route.name === 'Search') {
-                                       iconName = focused ? 'search' : 'search';
-                                   } else if (route.name === 'Cart') {
-                                       iconName = focused ? 'shopping-cart' : 'shopping-cart';
-                                   } else if (route.name === 'Account') {
-                                       iconName = focused ? 'user' : 'user';
-                                   } else if (route.name === 'More') {
-                                       iconName = focused ? 'ellipsis-h' : 'ellipsis-h';
-                                   }
-
+                                   let iconName = getIconName(route, focused);
                                    return <Icons name={iconName} size={size} color={color}/>;
                                },
                                tabBarActiveTintColor: 'limegreen',
@@ -171,12 +238,11 @@ export default function Navigation() {
                     name="Product"
                     component={Product}
                     options={({navigation}) => ({
-                        headerLeft: () => (
-                            <TouchableWithoutFeedback
-                                style={styles.backButton}
-                                onPress={() => navigation.navigate('Search')}>
-                                <Icon name="chevron-left" size={16} color="#fff" style={styles.backButton}/>
-                            </TouchableWithoutFeedback>
+                        headerLeft: (props) => (
+                            <HeaderBackButton
+                                {...props}
+                                onPress={() => navigation.navigate('Search')}
+                            />
                         ),
                         navigation: navigation,
                         tabBarButton: () => null,

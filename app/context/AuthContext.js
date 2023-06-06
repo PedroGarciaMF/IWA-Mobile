@@ -25,6 +25,7 @@ const {Provider} = AuthContext;
 
 const AuthProvider = ({children}) => {
   const [authState, setAuthState] = useState({
+    id: null,
     accessToken: null,
     refreshToken: null,
     authenticated: null,
@@ -33,10 +34,15 @@ const AuthProvider = ({children}) => {
   const logout = async () => {
     await Keychain.resetGenericPassword();
     setAuthState({
+      id: null,
       accessToken: null,
       refreshToken: null,
       authenticated: false,
     });
+  };
+
+  const getId = () => {
+    return authState.id;
   };
 
   const getAccessToken = () => {
@@ -47,6 +53,7 @@ const AuthProvider = ({children}) => {
     <Provider
       value={{
         authState,
+        getId,
         getAccessToken,
         setAuthState,
         logout,

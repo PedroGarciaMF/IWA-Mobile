@@ -62,10 +62,6 @@ export default function More({navigation}) {
         }, [authContext]),
     );
 
-    useEffect(() => {
-
-    }, [isFocused]);
-
     function getLinkVisibility() {
         if (authContext?.authState?.authenticated === true) {
             setListItems(_.filter(listItems, function (item) {
@@ -81,9 +77,11 @@ export default function More({navigation}) {
     function handlePick(item) {
         switch (item.text) {
             case 'Sign In':
-                console.log('logging in');
+                console.log('logging in')
                 setListItems(defaultLinks);
                 setLoginRequired(true);
+                console.log(loginRequired);
+                console.log(authContext?.authState?.authenticated)
                 break;
             case 'Sign Out':
                 console.log('logging out');

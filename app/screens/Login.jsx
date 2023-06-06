@@ -55,8 +55,9 @@ const Login = () => {
                 password: password,
             });
 
-            const {accessToken, refreshToken} = response.data;
+            const {id, accessToken, refreshToken} = response.data;
             authContext.setAuthState({
+                id,
                 accessToken,
                 refreshToken,
                 authenticated: true,
@@ -75,6 +76,7 @@ const Login = () => {
             await Keychain.setGenericPassword(
                 'token',
                 JSON.stringify({
+                    id,
                     accessToken,
                     refreshToken,
                 }),
