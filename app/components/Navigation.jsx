@@ -47,7 +47,7 @@ import axios from 'axios';
 export default function Navigation() {
     const [status, setStatus] = useState('loading');
     const {getItemsCount} = useContext(CartContext);
-    const [messageCount, setMessageCount] = useState(1);
+    const [messageCount, setMessageCount] = useState(0);
     const authContext = useContext(AuthContext);
 
     const scheme = useColorScheme();
@@ -103,7 +103,6 @@ export default function Navigation() {
         if (authContext?.authState?.authenticated) {
             let userId = authContext?.authState?.id;
             UsersService.getUnreadMessageCount(userId).then(data => {
-                //console.log("INSIDE DATA", data);
                 setMessageCount(data);
             })
         } else {

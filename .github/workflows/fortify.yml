@@ -63,9 +63,9 @@ on:
 # Global environment variables
 env:
   DEFAULT_APP_NAME: "IWA-Mobile"
-  #FCLI_VER: "v1.2.5"
+  #FCLI_VER: "v1.3"
   FCLI_VER: "dev_2.0.0-beta"
-  SCANCENTRAL_VER: "22.2.0"
+  SCANCENTRAL_VER: "23.1.0"
 
 jobs:
 
@@ -167,7 +167,7 @@ jobs:
         shell: bash
         run: |
           fcli --version
-          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
+          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
         env:
           FOD_API_URI: ${{ vars.FOD_API_URI }}
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
@@ -178,7 +178,8 @@ jobs:
         shell: bash
         run: |
           fcli fod release list --app "$FOD_APP_NAME" --session github-actions
-          RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from $FOD_PARENT_RELEASE_NAME --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
+          echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
+          RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
           echo "::debug::Created FOD_RELEASE_ID=${RELID}"
           echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
         id: create_fod_release
@@ -224,7 +225,7 @@ jobs:
         with:
           type: 'zip'
           filename: 'package.zip'
-          exclusions: '*.git* __tests__ android ios bin'
+          exclusions: '*.git* __tests__ android/build android/gradle ios bin'
 
       # Start Fortify on Demand SAST scan and wait until results complete. For more information on FoDUploader commands, see https://github.com/fod-dev/fod-uploader-java
       #- name: Download Fortify on Demand Universal CI Tool
@@ -245,7 +246,7 @@ jobs:
       - name: Perform SAST scan
         shell: bash
         run: |
-          fcli fod scan start-sast "${FOD_RELEASE_NAME}" --entitlement SubscriptionOnly --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+          fcli fod scan start-sast "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
           sleep 5
           fcli fod scan wait-for ::curScan:: --session github-actions
         id: perform_sast_scan
@@ -256,7 +257,7 @@ jobs:
 
       # Pull SAST issues from Fortify on Demand and generate GitHub-optimized SARIF output
       - name: Export Results
-        uses: fortify/gha-export-vulnerabilities@v1
+        uses: fortify/gha-export-vulnerabilities@v1.0.2
         with:
           fod_base_url: ${{ vars.FOD_BASE_URL }}
           fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
@@ -281,7 +282,7 @@ jobs:
       - name: Logout fcli
         shell: bash
         run: |
-          fcli fod session logout github-actions
+          fcli fod session logout --session github-actions
 
   FoD-Mobile-Scan:
     runs-on: ubuntu-latest
@@ -354,7 +355,7 @@ jobs:
         shell: bash
         run: |
           fcli --version
-          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
+          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
         env:
           FOD_API_URI: ${{ vars.FOD_API_URI }}
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
@@ -377,7 +378,7 @@ jobs:
       - name: Logout fcli
         shell: bash
         run: |
-          fcli fod session logout github-actions
+          fcli fod session logout --session github-actions
 
   Security-Gate:
     runs-on: ubuntu-latest
@@ -440,7 +441,7 @@ jobs:
         shell: bash
         run: |
           fcli --version
-          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET github-actions
+          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
         env:
           FOD_API_URI: ${{ vars.FOD_API_URI }}
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
@@ -461,4 +462,4 @@ jobs:
       - name: Logout fcli
         shell: bash
         run: |
-          fcli fod session logout github-actions
+          fcli fod session logout --session github-actions

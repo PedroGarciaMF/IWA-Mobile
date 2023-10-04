@@ -80,8 +80,6 @@ export default function More({navigation}) {
                 console.log('logging in')
                 setListItems(defaultLinks);
                 setLoginRequired(true);
-                console.log(loginRequired);
-                console.log(authContext?.authState?.authenticated)
                 break;
             case 'Sign Out':
                 console.log('logging out');
@@ -93,6 +91,7 @@ export default function More({navigation}) {
         }
     }
 
+    // TODO: use react-native-element <ListItem>
     const _renderItem = ({item}) => {
         return (
             <View style={styles.listItemView}>

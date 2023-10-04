@@ -38,6 +38,10 @@ const CartProvider = ({children}) => {
 
   const addItemToCart = ({id}) => {
     console.log(`CartContext::addItemToCart: adding product id: ${id} to cart`);
+    /*var crypto = require('crypto');
+    var encryptionKey = '';
+    var algorithm = 'aes-256-ctr';
+    var cipher = crypto.createCipher(algorithm, encryptionKey);*/
     ProductsService.getProduct(id).then(product => {
       //console.log('INSIDE DATA', product);
       const pid = product.id;

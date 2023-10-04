@@ -23,7 +23,7 @@ import '../Global.js';
 const UsersService = {
   getUnreadMessageCount: async function (uid) {
     console.log(
-      `UsersService::getUnreadMessageCount: retrieving message for user id: ${uid}`,
+      `UsersService::getUnreadMessageCount: retrieving messages for user id: ${uid}`,
     );
     try {
       const response = await axios.get(

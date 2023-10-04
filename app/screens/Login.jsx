@@ -18,34 +18,57 @@
 */
 
 import {Alert, Button, Image, SafeAreaView, StyleSheet, TextInput, View} from 'react-native';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {AuthContext} from '../context/AuthContext';
 import * as Keychain from 'react-native-keychain';
 import {AxiosContext} from '../context/AxiosContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import {encrypt, decrypt} from '../modules/Encryptor';
+
 const Login = () => {
     const [email, setEmail] = useState('');
-
     const [password, setPassword] = useState('');
     const authContext = useContext(AuthContext);
     const {publicAxios} = useContext(AxiosContext);
 
-    const storeData = async (value) => {
+    const IWA_STORAGE_KEY = "@IWA_USER";
+
+    const storeData = async (email, password) => {
         try {
-            await AsyncStorage.setItem('@storage_Key', value);
+            encrypt(password).then((encrypted) => {
+                var userObj = new Object();
+                userObj.email = email;
+                userObj.password = encrypted;
+                var userJson = JSON.stringify(userObj);
+                console.log(`Saving JSON to storage: ${userJson}`);
+                AsyncStorage.setItem(IWA_STORAGE_KEY, userJson);
+            });
         } catch (e) {
             // saving error
         }
     };
 
-    const getData = async () => {
-        try {
-            return await AsyncStorage.getItem('@storage_Key');
-        } catch (e) {
-            // error reading value
-        }
-    };
+    useEffect(() => {
+        AsyncStorage.getItem(IWA_STORAGE_KEY).then((userJson) => {
+            try {
+                var userObj = JSON.parse(userJson);
+                setEmail(userObj.email);
+                console.log(`Decrypting password: ${userObj.password}`);
+                decrypt(userObj.password).then((password) => {
+                    console.log(`Unencrypted password: ${password}`);
+                    setPassword(password);
+                });
+            } catch (e) {
+                // parsing or decrypting error
+            }
+        });
+    }, []);
+
+    processSubmittedInput = event => {
+        var text = event.nativeEvent.text;
+        console.log(`will store: ${text}`);
+    }
 
     const onLogin = async () => {
         console.log(`Attempting to login user "${email}" with password "${password}"`);
@@ -64,15 +87,7 @@ const Login = () => {
             });
             console.log(`Logged in successfully, retrieved accessToken "${accessToken}"`);
 
-            // this is bad
-            await storeData(JSON.stringify({
-                email,
-                password,
-            }));
-            const data = await getData();
-            console.log(JSON.parse(data));
-
-            // this is better
+            await storeData(email, password);
             await Keychain.setGenericPassword(
                 'token',
                 JSON.stringify({
@@ -108,6 +123,7 @@ const Login = () => {
                     placeholderTextColor="#ccc"
                     secureTextEntry
                     onChangeText={text => setPassword(text)}
+                    onSubmitEditing={(text) => processSubmittedInput(text)}
                     value={password}
                 />
             </View>
