@@ -18,22 +18,41 @@
 */
 
 import * as React from 'react';
-import {View, Text, StatusBar} from 'react-native'
+import {useContext, useEffect, useState} from 'react';
+import {ActivityIndicator, Alert, ScrollView, StatusBar, Text, TextInput, View} from 'react-native';
 import {styles, backgroundStyle, isDarkMode} from '../Styles';
-import {useContext} from 'react';
 import {AuthContext} from '../context/AuthContext';
+import {useIsFocused, useTheme} from '@react-navigation/native';
 
 import Login from './Login';
 
 export default function Account({navigation}) {
     const authContext = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
+
+    const isFocused = useIsFocused();
+    const {colors} = useTheme();
+
+    useEffect(() => {
+        setLoading(false);
+    }, [isFocused, navigation]);
 
     if (authContext?.authState?.authenticated === false) {
         return <Login />;
     } else {
         return (
             <View style={styles.screenContainer}>
-                <Text>Account Screen</Text>
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    {loading === false ? (
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                                <Text>Account Screen</Text>
+                            </View>
+                    ) : (
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                            <ActivityIndicator size="large"/>
+                        </View>
+                    )}
+                </ScrollView>
                 <StatusBar style="auto"/>
             </View>
         );

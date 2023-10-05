@@ -43,7 +43,7 @@ public class EncryptionModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void encrypt(String plainText, Promise promise) {
         try {
-            SecretKeySpec secretKeySpec = createKey(KEY);
+            SecretKeySpec secretKeySpec = createKey(CIPHER_PASSWORD_KEY);
             Cipher cipher = Cipher.getInstance("DES");
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
             byte[] utf8 = plainText.getBytes(StandardCharsets.UTF_8);
@@ -60,7 +60,7 @@ public class EncryptionModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void decrypt(String encryptedText, Promise promise) {
         try {
-            SecretKeySpec secretKeySpec = createKey(KEY);
+            SecretKeySpec secretKeySpec = createKey(CIPHER_PASSWORD_KEY);
             Cipher cipher = Cipher.getInstance("DES");
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
             byte[] dec = Base64.getDecoder().decode(encryptedText.getBytes());
