@@ -41,7 +41,7 @@ import Cart from '../screens/Cart';
 import Product from '../screens/Product';
 import Account from '../screens/Account';
 import More from '../screens/More';
-import UsersService from '../services/UsersService';
+import UserService from '../services/UserService';
 import axios from 'axios';
 
 export default function Navigation() {
@@ -102,7 +102,7 @@ export default function Navigation() {
     useEffect(() => {
         if (authContext?.authState?.authenticated) {
             let userId = authContext?.authState?.id;
-            UsersService.getUnreadMessageCount(userId).then(data => {
+            UserService.getUnreadMessageCount(userId).then(data => {
                 setMessageCount(data);
             })
         } else {

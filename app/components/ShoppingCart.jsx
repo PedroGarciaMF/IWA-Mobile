@@ -33,7 +33,7 @@ export default function ShoppingCart({navigation}) {
     const isFocused = useIsFocused();
 
     function onCheckout() {
-        Alert.alert('Checkout Now Button pressed');
+        Alert.alert('This feature has not been implemented yet.');
     }
 
     function Totals() {

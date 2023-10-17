@@ -20,21 +20,35 @@
 import axios from 'axios';
 import '../Global.js';
 
-const UsersService = {
+const UserService = {
+  getUser: async function (uid = '') {
+    console.log(`UserService::getUser: retrieving user id: ${uid}`);
+    try {
+      const response = await axios.get(
+        `${global.API_BASE}/users/${uid}`
+      );
+      //console.log(`UserService::getUser: response:`); console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(`UserService::getUser: ${error}`);
+    }
+  },
+
   getUnreadMessageCount: async function (uid) {
     console.log(
-      `UsersService::getUnreadMessageCount: retrieving messages for user id: ${uid}`,
+      `UserService::getUnreadMessageCount: retrieving messages for user id: ${uid}`,
     );
     try {
       const response = await axios.get(
         `${global.API_BASE}/messages/unread-count/${uid}`,
       );
-      //console.log(`UsersService::getUnreadMessageCount: response: ${response.data}`);
+      //console.log(`UserService::getUnreadMessageCount: response: ${response.data}`);
       return response.data;
     } catch (error) {
-      console.log(`UsersService::getUnreadMessageCount: ${error}`);
+      console.log(`UserService::getUnreadMessageCount: ${error}`);
     }
   },
+
 };
 
-export default UsersService;
+export default UserService;

@@ -20,20 +20,27 @@
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {ActivityIndicator, Alert, ScrollView, StatusBar, Text, TextInput, View} from 'react-native';
+import {ListItem, Button } from 'react-native-elements';
 import {styles, backgroundStyle, isDarkMode} from '../Styles';
 import {AuthContext} from '../context/AuthContext';
 import {useIsFocused, useTheme} from '@react-navigation/native';
+
+import AccountDetails from '../components/AccountDetails';
 
 import Login from './Login';
 
 export default function Account({navigation}) {
     const authContext = useContext(AuthContext);
     const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState('');
 
     const isFocused = useIsFocused();
     const {colors} = useTheme();
 
     useEffect(() => {
+        if (authContext?.authState?.authenticated) {
+            setUserId(authContext?.authState?.id);
+        }
         setLoading(false);
     }, [isFocused, navigation]);
 
@@ -44,9 +51,7 @@ export default function Account({navigation}) {
             <View style={styles.screenContainer}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     {loading === false ? (
-                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                                <Text>Account Screen</Text>
-                            </View>
+                        <AccountDetails navigation={navigation} uid={userId}/>
                     ) : (
                         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                             <ActivityIndicator size="large"/>

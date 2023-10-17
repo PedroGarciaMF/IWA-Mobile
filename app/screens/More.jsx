@@ -41,8 +41,6 @@ class LinkVisiblity {
 
 const defaultLinks = [
     {id: '1', icon: 'building', text: 'Find Store', visibility: LinkVisiblity.Always},
-    {id: '10', icon: 'sign-in', text: 'Sign In', visibility: LinkVisiblity.LoggedOut},
-    {id: '11', icon: 'sign-out', text: 'Sign Out', visibility: LinkVisiblity.LoggedIn},
     {id: '12', icon: 'history', text: 'Order History', visibility: LinkVisiblity.LoggedIn},
     {id: '52', icon: 'question-circle', text: 'Help', visibility: LinkVisiblity.Always},
     {id: '53', icon: 'file-text', text: 'Legal', visibility: LinkVisiblity.Always},
