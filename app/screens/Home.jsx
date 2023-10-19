@@ -19,10 +19,9 @@
 
 import React from 'react';
 import {Alert, ImageBackground, ScrollView, StatusBar, Text, View} from 'react-native';
-import { Button } from 'react-native-elements';
-
-import {Card, Icon} from 'react-native-elements';
+import {Button, Card, Icon} from 'react-native-elements';
 import {HStack} from 'react-native-flex-layout';
+
 import '../Global.js';
 import {styles} from '../Styles';
 
@@ -31,6 +30,16 @@ import NewProducts from '../components/NewProducts';
 const homeBgImage = require('../assets/img/home_hero_1.jpg');
 
 export default function Home({navigation}) {
+
+    function onRegister() {
+        Alert.alert(
+            'Not yet Implemented',
+            'This application is a work in progress and this feature has not yet been implemented - please be patient.',
+            [
+                   {text: 'OK'},
+            ]
+        )
+    }
 
     return (
         <View style={styles.screenContainer}>
@@ -45,7 +54,7 @@ export default function Home({navigation}) {
                                     title="REGISTER"
                                     raised={true}
                                     style={styles.button}
-                                    onPress={() => Alert.alert('Register Button pressed')}
+                                    onPress={onRegister}
                                 />
                             </View>
                             <View>

@@ -18,7 +18,7 @@
 */
 
 import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, useColorScheme, View} from 'react-native';
+import {Image, StyleSheet, Text, useColorScheme, View, Alert} from 'react-native';
 
 import {NavigationContainer, DefaultTheme, DarkTheme, getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import { HeaderBackButton } from '@react-navigation/elements'
@@ -166,11 +166,9 @@ export default function Navigation() {
 
     function getHeaderRight(route, authContext) {
         return (
-
-                    <View style={styles.headerRight}>
-                        <BadgedIcon type="fontawesome" name="envelope" size={20} color="#fff" />
-                    </View>
-
+            <View style={styles.headerRight}>
+                <BadgedIcon type="fontawesome" name="envelope" size={20} color="#fff" />
+            </View>
         );
     }
 

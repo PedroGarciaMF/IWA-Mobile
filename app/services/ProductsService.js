@@ -20,6 +20,9 @@
 import axios from 'axios';
 import '../Global.js';
 
+import {AuthContext} from '../context/AuthContext';
+import {AxiosContext} from '../context/AxiosContext';
+
 const ProductsService = {
   getProducts: async function (limit = 50) {
     console.log(`ProductService::getProducts: retrieving ${limit} products`);

@@ -8,7 +8,7 @@
 # dynamic, interactive, and runtime security testing is available on premises or as a service. To learn more about Fortify, start a free trial #
 # or contact our sales team, visit microfocus.com/appsecurity.                                                                                 #
 #                                                                                                                                              #
-# Use this workflow template as a basis for integrating Fortify on Demand Static Application Security Testing(SAST) into your GitHub workflows.#
+# Use this workflow template as a basis for integrating Fortify on Demand Application Security Testing into your GitHub workflows.             #
 # This template demonstrates the steps to prepare the code+dependencies, initiate a scan, download results once complete and import into       #
 # GitHub Security Code Scanning Alerts. Existing customers should review inputs and environment variables below to configure scanning against  #
 # an existing application in your Fortify on Demand tenant. Additional information is available in the comments throughout the workflow, the   #
@@ -28,7 +28,7 @@
 #   It is recommended to create credentials with 'Security Lead' Role selected.
 #   "Automated Audit preference" should be configured for the release's Static Scan Settings.
 
-name: Fortify Security Scan
+name: DevSecOps with Fortify
 
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -39,8 +39,6 @@ on:
       - 'data/**'
       - 'etc/**'
       - 'media/**'
-      - 'Jenkinsfile'
-      - '.gitlab-ci.yml'
       - 'README.md'
       - 'LICENSE'
     branches:
@@ -55,8 +53,8 @@ on:
         description: 'Carry out SAST scan using Fortify on Demand'
         required: false
         default: 'true'
-      runFoDMobileScan:
-        description: 'Carry out Mobile scan using Fortify on Demand'
+      runFoDMASTScan:
+        description: 'Carry out MAST scan using Fortify on Demand'
         required: false
         default: 'true'
 
@@ -192,7 +190,6 @@ jobs:
       # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
       - name: Generate Gradle dependencies file
         shell: bash
-        #run: sh ./gradlew dependencies > .debricked-gradle-dependencies.txt
         run: npm install --package-lock-only
 
       # Prepare source+dependencies for upload. The default example is for a Maven project that uses pom.xml.
@@ -246,9 +243,9 @@ jobs:
       - name: Perform SAST scan
         shell: bash
         run: |
-          fcli fod scan start-sast "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+          fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
           sleep 5
-          fcli fod scan wait-for ::curScan:: --session github-actions
+          fcli fod sast-scan wait-for ::curScan:: --session github-actions
         id: perform_sast_scan
         env:
           PACKAGE_FILE: "package.zip"
@@ -284,10 +281,10 @@ jobs:
         run: |
           fcli fod session logout --session github-actions
 
-  FoD-Mobile-Scan:
+  FoD-MAST-Scan:
     runs-on: ubuntu-latest
-    if: ${{ (github.event.inputs.runFoDMobileScan == 'true') }}
-    needs: [ Build-And-Test ]
+    if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDMASTScan == 'true') }}
+    needs: [ Build-And-Test, FoD-SAST-Scan ]
 
     steps:
       - name: Check Out Source Code
@@ -365,9 +362,9 @@ jobs:
       - name: Perform Mobile scan
         shell: bash
         run: |
-          fcli fod scan start-mobile "${FOD_RELEASE_NAME}" --framework=Android --entitlement-frequency Subscription --assessment-type Mobile -f $APK_FILE --store curScan --session github-actions
+          fcli fod mast-scan start --release "${FOD_RELEASE_NAME}" --framework=Android --entitlement-frequency Subscription --assessment-type Mobile -f $APK_FILE --store curScan --session github-actions
           sleep 5
-          fcli fod scan wait-for ::curScan:: --session github-actions
+          fcli fod mast-scan wait-for ::curScan:: --session github-actions
         id: perform_mobile_scan
         env:
           APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
@@ -383,7 +380,7 @@ jobs:
   Security-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [ FoD-SAST-Scan, FoD-Mobile-Scan ]
+    needs: [ FoD-SAST-Scan, FoD-MAST-Scan ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

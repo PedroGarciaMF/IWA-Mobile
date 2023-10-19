@@ -19,13 +19,13 @@
 
 import * as React from 'react';
 import {useCallback, useContext, useEffect, useState} from 'react';
-import {FlatList, Image, Modal, StatusBar, Text, TouchableOpacity, View} from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+import {FlatList, Image, Modal, StatusBar, Text, TouchableOpacity, View, Alert} from 'react-native';
+import {ListItem, Button } from 'react-native-elements';
+import {useIsFocused, useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {styles} from '../Styles';
 import {AuthContext} from '../context/AuthContext';
 import _ from 'underscore';
-import {useFocusEffect} from '@react-navigation/native';
 
 import Login from './Login';
 
@@ -39,7 +39,7 @@ class LinkVisiblity {
     }
 }
 
-const defaultLinks = [
+const links = [
     {id: '1', icon: 'building', text: 'Find Store', visibility: LinkVisiblity.Always},
     {id: '12', icon: 'history', text: 'Order History', visibility: LinkVisiblity.LoggedIn},
     {id: '52', icon: 'question-circle', text: 'Help', visibility: LinkVisiblity.Always},
@@ -49,7 +49,7 @@ const defaultLinks = [
 ];
 
 export default function More({navigation}) {
-    const [listItems, setListItems] = useState(defaultLinks);
+    const [listItems, setListItems] = useState(links);
     const [loginRequired, setLoginRequired] = useState(false);
     const isFocused = useIsFocused();
     const authContext = useContext(AuthContext);
@@ -72,51 +72,38 @@ export default function More({navigation}) {
         }
     }
 
-    function handlePick(item) {
+    const handlePick = item => {
         switch (item.text) {
-            case 'Sign In':
-                console.log('logging in')
-                setListItems(defaultLinks);
-                setLoginRequired(true);
-                break;
-            case 'Sign Out':
+            case 'Log Out':
                 console.log('logging out');
-                setListItems(defaultLinks);
                 authContext.logout();
-                setLoginRequired(false);
+                break;
+            case 'not-yet-implemented':
+            case 'Find Store':
+            case 'Order History':
+            case 'Help':
+            case 'Legal':
+            case 'Feedback':
+                Alert.alert(
+                    'Not yet Implemented',
+                    'This application is a work in progress and this feature has not yet been implemented - please be patient.',
+                    [
+                           {text: 'OK'},
+                    ]
+                )
+                break;
+            case 'About':
+                Alert.alert(
+                    'About',
+                    'IWA-Mobile is an insecure React Native mobile application for use in Fortify by Opentext demonstrations.',
+                    [
+                           {text: 'OK'},
+                    ]
+                )
                 break;
             default:
+                break;
         }
-    }
-
-    // TODO: use react-native-element <ListItem>
-    const _renderItem = ({item}) => {
-        return (
-            <View style={styles.listItemView}>
-                <TouchableOpacity style={styles.homeButton} activeOpacity={.5}
-                                  onPress={() => handlePick(item)}>
-                    <View style={styles.stateView}>
-
-                        <Text style={styles.textItem}>
-                            <Icon name={item.icon} size={20} color="#4F8EF7" iconStyle={{padding: 20}}/> {item.text}
-                        </Text>
-                        <Image source={require('../assets/img/icons8-chevron-right-24.png')}
-                               style={{marginLeft: 100, marginTop: 5, width: 25, height: 25}}/>
-                    </View>
-                </TouchableOpacity>
-            </View>
-        );
-    };
-
-    const itemSeparator = () => {
-        return (
-            <View
-                style={{
-                    borderBottomWidth: 2,
-                    borderColor: '#C8C8C8',
-                }}
-            />
-        );
     };
 
     return (
@@ -128,13 +115,19 @@ export default function More({navigation}) {
             >
                 <Login/>
             </Modal>
-            <FlatList
-                style={styles.listContainer}
-                data={listItems}
-                keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={itemSeparator}
-                renderItem={({item}) => _renderItem({item})}
-            />
+            <View style={styles.listContainer}>
+              {
+                links.map((item, i) => (
+                  <ListItem key={i} bottomDivider style={styles.listItemView} onPress={() => handlePick(item)}>
+                    <Icon name={item.icon} size={24} color="#4F8EF7" iconStyle={{padding: 20}}/>
+                    <ListItem.Content>
+                      <ListItem.Title>{item.text}</ListItem.Title>
+                    </ListItem.Content>
+                    <ListItem.Chevron iconStyle={styles.lChevron}/>
+                  </ListItem>
+                ))
+              }
+            </View>
             <StatusBar style="auto"/>
         </View>
     );

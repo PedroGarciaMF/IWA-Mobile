@@ -67,7 +67,7 @@ const Login = () => {
 
     processSubmittedInput = event => {
         var text = event.nativeEvent.text;
-        console.log(`will store: ${text}`);
+        console.log(`On submit will store: ${text}`);
     }
 
     const onLogin = async () => {

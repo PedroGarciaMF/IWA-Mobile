@@ -20,6 +20,9 @@
 import axios from 'axios';
 import '../Global.js';
 
+import {AuthContext} from '../context/AuthContext';
+import {AxiosContext} from '../context/AxiosContext';
+
 const UserService = {
   getUser: async function (uid = '') {
     console.log(`UserService::getUser: retrieving user id: ${uid}`);

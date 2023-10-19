@@ -33,7 +33,13 @@ export default function ShoppingCart({navigation}) {
     const isFocused = useIsFocused();
 
     function onCheckout() {
-        Alert.alert('This feature has not been implemented yet.');
+        Alert.alert(
+            'Not yet Implemented',
+            'This application is a work in progress and this feature has not yet been implemented - please be patient.',
+            [
+                   {text: 'OK'},
+            ]
+        )
     }
 
     function Totals() {

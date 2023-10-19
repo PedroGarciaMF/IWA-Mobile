@@ -26,6 +26,7 @@ export const styles = StyleSheet.create({
   },
   listContainer: {
     width: windowWidth,
+    flex: 1,
   },
   frontSubtitle: {
     textAlign: 'center',
@@ -134,5 +135,10 @@ export const styles = StyleSheet.create({
     paddingTop: 5,
     paddingBottom: 5,
     marginRight: 'auto',
+  },
+  lChevron: {
+      fontSize: 24,
+      color: '#444',
+      fontWeight: 'bold'
   },
 });

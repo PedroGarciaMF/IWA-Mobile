@@ -20,8 +20,7 @@
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {ActivityIndicator, Alert, ScrollView, StatusBar, Text, TextInput, View} from 'react-native';
-import { Button } from 'react-native-elements';
-import {Image, Rating, Badge} from 'react-native-elements';
+import {Button, Image, Rating, Badge} from 'react-native-elements';
 import {HStack} from 'react-native-flex-layout';
 import {useIsFocused, useTheme} from '@react-navigation/native';
 import {NumericFormat} from 'react-number-format';
@@ -68,7 +67,6 @@ export default function Product({route, navigation}) {
     }, [isFocused, productTitle, navigation]);
 
     function processInput(evt) {
-        /* Vulnerability: command/script injection */
         //const result = eval(text);
         let result = evt.data;
         setDisplayText(result);

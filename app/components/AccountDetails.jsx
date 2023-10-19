@@ -35,9 +35,19 @@ export default function AccountDetails({navigation, uid}) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // TODO: check uid is valid and data is returned
         UserService.getUser(uid).then(data => {
-            setData(data);
+            if (typeof data !== 'undefined') {
+                setData(data);
+            } else {
+                console.log(`Error: unable to retrieve data for uid: ${uid}`);
+                Alert.alert(
+                    'Error',
+                    'Unable to retrieve data for user with uid: ' + uid,
+                    [
+                           {text: 'OK'},
+                    ]
+                );
+            }
             setLoading(false);
         });
     }, [])
@@ -49,7 +59,13 @@ export default function AccountDetails({navigation, uid}) {
                 authContext.logout();
                 break;
             case 'not-yet-implemented':
-                Alert.alert('This feature has not been implemented yet.');
+                Alert.alert(
+                    'Not yet Implemented',
+                    'This application is a work in progress and this feature has not yet been implemented - please be patient.',
+                    [
+                           {text: 'OK'},
+                    ]
+                )
                 break;
             default:
                 break;
@@ -69,10 +85,13 @@ export default function AccountDetails({navigation, uid}) {
             paddingBottom: 20,
             paddingLeft: 10
         },
-        listItemPad: {
+        sTopPad: {
             paddingTop: 5
         },
-        largeChevron: {
+        lTopPad: {
+            paddingTop: 20
+        },
+        lChevron: {
             fontSize: 24,
             color: '#444',
             fontWeight: 'bold'
@@ -83,7 +102,7 @@ export default function AccountDetails({navigation, uid}) {
         <View style={styles.container}>
             {loading === false ? (
                 <ScrollView>
-                    <ListItem style={styles.listItemPad}>
+                    <ListItem style={styles.lTopPad}>
                         <ListItem.Content>
                             <ListItem.Title>Welcome back, {data.firstName}</ListItem.Title>
                             <View>
@@ -92,7 +111,7 @@ export default function AccountDetails({navigation, uid}) {
                         </ListItem.Content>
                     </ListItem>
                     <Text style={styles.sectionTitle}>Billing & Delivery Address</Text>
-                    <ListItem style={styles.listItemPad} onPress={() => handlePick("not-yet-implemented")}>
+                    <ListItem style={styles.sTopPad} onPress={() => handlePick("not-yet-implemented")}>
                         <ListItem.Content>
                             <View>
                                 <Text>{data.address}</Text>
@@ -101,20 +120,20 @@ export default function AccountDetails({navigation, uid}) {
                                 <Text>{data.country}</Text>
                             </View>
                         </ListItem.Content>
-                        <ListItem.Chevron iconStyle={styles.largeChevron}/>
+                        <ListItem.Chevron iconStyle={styles.lChevron}/>
                     </ListItem>
-                    <ListItem style={styles.listItemPad} onPress={() => handlePick("not-yet-implemented")}>
+                    <ListItem style={styles.sTopPad} onPress={() => handlePick("not-yet-implemented")}>
                         <ListItem.Content style={{flex: 1}}>
                             <ListItem.Title>Change Delivery Address</ListItem.Title>
                         </ListItem.Content>
-                        <ListItem.Chevron iconStyle={styles.largeChevron} />
+                        <ListItem.Chevron iconStyle={styles.lChevron} />
                     </ListItem>
-                    <ListItem style={styles.listItemPad} onPress={() => handlePick("not-yet-implemented")}>
+                    <ListItem style={styles.lTopPad} onPress={() => handlePick("not-yet-implemented")}>
                         <ListItem.Content>
                             <ListItem.Title style={{color: 'red'}}>Close Account</ListItem.Title>
                         </ListItem.Content>
                     </ListItem>
-                    <ListItem style={styles.listItemPad} onPress={() => handlePick("logout")}>
+                    <ListItem style={styles.sTopPad} onPress={() => handlePick("logout")}>
                         <ListItem.Content>
                             <ListItem.Title style={{color: 'red'}}>Sign Out</ListItem.Title>
                         </ListItem.Content>

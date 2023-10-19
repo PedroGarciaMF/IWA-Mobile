@@ -18,17 +18,7 @@
 */
 
 import React, {useEffect, useState} from 'react';
-import {
-    ActivityIndicator,
-    Button,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import {ActivityIndicator, Button, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import { Rating } from 'react-native-elements';
 import { useIsFocused, useTheme } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

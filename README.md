@@ -62,7 +62,7 @@ npx react-native run-android
 ```
 
 If your environment is configured correctly, the Android emulator should startup with the application running.
-Finally, to create a proxy from the IWA API running locally to the application running on the emulator:
+Finally, to create a proxy from the IWA-Java API running locally to the application running on the emulator:
 
 ```aidl
 adb reverse tcp:8888 tcp:8888
