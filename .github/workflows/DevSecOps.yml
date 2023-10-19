@@ -362,7 +362,7 @@ jobs:
       - name: Perform Mobile scan
         shell: bash
         run: |
-          fcli fod mast-scan start --release "${FOD_RELEASE_NAME}" --framework=Android --entitlement-frequency Subscription --assessment-type Mobile -f $APK_FILE --store curScan --session github-actions
+          fcli fod mast-scan start --release "${FOD_RELEASE_NAME}"  --framework Android --entitlement-frequency Subscription --assessment-type "Mobile Assessment" -f $APK_FILE --store curScan --session github-actions
           sleep 5
           fcli fod mast-scan wait-for ::curScan:: --session github-actions
         id: perform_mobile_scan
