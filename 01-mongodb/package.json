@@ -1,0 +1,25 @@
+{
+  "name": "mongodb",
+  "version": "1.0.0",
+  "description": "IWA-MEAN an insecure MEAN (MongoDB, Express, Angular, Node) stack application for use in application security demonstrations.",
+  "scripts": {
+    "populate": "NODE_ENV=production && node populateDb.js all",
+    "dev": "node populateDb.js all",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Kevin Lee <kevin.lee@microfocus.com>"
+  },
+  "license": "GPLv3",
+  "devDependencies": {
+    "@tsconfig/node-lts": "^18.12.5",
+    "@types/config": "^3.3.2",
+    "@types/node": "^20.8.7",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "config": "^3.3.6",
+    "mongoose": "^5.9.7"
+  }
+}

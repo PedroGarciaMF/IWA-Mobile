@@ -1,0 +1,22 @@
+{
+  "App": {
+    "name": "IWA-MEAN - Express API",
+    "description": "",
+    "port":  3000,
+    "dbConfig": {
+      "host": "127.0.0.1",
+      "port": 27017,
+      "user": "iwa-dev",
+      "password": "iwa-dev",
+      "database": "iwa-dev"
+    },
+    "apiConfig": {
+      "url": "http://localhost:3000",
+      "version": "v3",
+      "description": "Development server"
+    },
+    "jwtSecret": "changeme",
+    "jwtExpiration": 36000,
+    "encryptionKey": "lakdsljkalkjlksdfkl"
+  }
+}

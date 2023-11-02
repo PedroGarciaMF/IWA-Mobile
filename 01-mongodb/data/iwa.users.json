@@ -1,0 +1,65 @@
+[
+  {
+    "name": {
+      "first_name": "Admin",
+      "middle_name": "",
+      "last_name": "User"
+    },
+    "email": "admin@localhost.com",
+    "phone_number": "1234567890",
+    "password": "9d9cba1e29b334cc",
+    "address": {
+      "street": "",
+      "city": "",
+      "state": "",
+      "zip": "",
+      "country": ""
+    },
+    "is_enabled": true,
+    "password_reset": false,
+    "mfa_enabled": false,
+    "is_admin": true
+  },
+  {
+    "name": {
+      "first_name": "Sam",
+      "middle_name": "A",
+      "last_name": "Shopper"
+    },
+    "email": "user1@localhost.com",
+    "phone_number": "0044770123456",
+    "password": "9d9cba1e29b334cc",
+    "address": {
+      "street": "1 Somewhere Street",
+      "city": "London",
+      "state": "Greater London",
+      "zip": "SW1",
+      "country": "United Kingdom"
+    },
+    "is_enabled": true,
+    "password_reset": false,
+    "mfa_enabled": false,
+    "is_admin": false
+  },
+  {
+    "name": {
+      "first_name": "Sarah",
+      "middle_name": "A",
+      "last_name": "Shopper"
+    },
+    "email": "user2@localhost.com",
+    "phone_number": "0044780123456",
+    "password": "9d9cba1e29b334cc",
+    "address": {
+      "street": "1 Somewhere Street",
+      "city": "London",
+      "state": "Greate London",
+      "zip": "SW1",
+      "country": "United Kingdom"
+    },
+    "is_enabled": true,
+    "password_reset": false,
+    "mfa_enabled": false,
+    "is_admin": false
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "App": {
+    "dbConfig": {
+      "host": "127.0.0.1",
+      "port": 27017,
+      "user": "iwa-test",
+      "password": "iwa-test",
+      "database": "iwa-test"
+    },
+    "apiConfig": {
+      "url": "https://localhost:3000",
+      "version": "v3",
+      "description": "Test Server"
+    },
+    "jwtSecret": "changeme",
+    "jwtExpiration": 36000,
+    "encryptionKey": "lakdsljkalkjlksdfkl"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "App": {
+    "name": "IWA-MEAN - MongoDB",
+    "description": "",
+    "dbConfig": {
+      "host": "127.0.0.1",
+      "port": 27017,
+      "user": "iwa-dev",
+      "password": "iwa-dev",
+      "database": "iwa-dev"
+    }
+  }
+}
