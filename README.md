@@ -11,7 +11,8 @@
 
 ## Overview
 
-_IWA-Mobile_ is an insecure [React Native](https://reactnative.dev/) mobile application for use in application security demonstrations. 
+_IWA-Mobile_ is an insecure [React Native](https://reactnative.dev/) mobile application with [ExpressJS](https://expressjs.com/) API and 
+[MongoDB](https://www.mongodb.com/) database backend. 
 It includes some examples of bad  and insecure code - which can be found using static and mobile security testing tools such 
 as those provided by [Fortify by OpenText](https://www.microfocus.com/en-us/cyberres/application-security).
 
@@ -29,29 +30,43 @@ your own GitHub account. The process of "forking" is described in detail in the 
 
 ## Setting up the Development Environment
 
-_Note: for this application to run successfully it requires the backend REST API of the related web application
-[IWA-Java](https://github.com/fortify/IWA-Java) to be running. Follow the instructions for setting up
-the environment for this application and then make sure it is running using `mvn spring-boot:run`._
+For this application to run you will require the following to be installed:
 
-Go to the React Native setup documentation [https://reactnative.dev/docs/environment-setup](https://reactnative.dev/docs/environment-setup)
-and follow the instructions under **React Native CLI Quickstart** for your preferred operating
-system and target device/emulator.
+- [MongoDB](https://www.mongodb.com/) Community Edition
+- [NodeJS](https://nodejs.org/) LTS version
+- [React Native](https://reactnative.dev/docs/environment-setup) CLI for your preferred operating system and target device/simulator.
 
 Clone the repository (preferably your fork from above) and then install all the required third-party packages using:
-
-```aidl
-npm install
-```
 
 Running the Application
 -----------------------
 
-**Android**
-
-Follow the instructions from [https://reactnative.dev/docs/environment-setup](https://reactnative.dev/docs/environment-setup)
-on how to start up the Metro Bundler and running the application. For example in one terminal, run
+**Populate MongoDB**
 
 ```aidl
+cd 01-mongodb
+npm install
+npm run dev
+```
+
+**Start Express API**
+
+```aidl
+cd 02-express-api
+npm install
+npm run dev
+```
+
+The Express API should then be accessible at [http://localhost:3000](http://localhost:3000)
+
+**React Native Client - Android**
+
+Please read the instructions from [https://reactnative.dev/docs/environment-setup](https://reactnative.dev/docs/environment-setup)
+on how to start up the Metro Bundler and running the application first. Then in one terminal, run
+
+```aidl
+cd 03-react-native-client
+npm install
 npx react-native start
 ```
 
@@ -65,7 +80,7 @@ If your environment is configured correctly, the Android emulator should startup
 Finally, to create a proxy from the IWA-Java API running locally to the application running on the emulator:
 
 ```aidl
-adb reverse tcp:8888 tcp:8888
+adb reverse tcp:3000 tcp:3000
 ```
 
 Press `r` in the **react-native** console to reload the appand the application should now be ready to use.
