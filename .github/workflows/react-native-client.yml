@@ -124,11 +124,11 @@ jobs:
             echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           else
             echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "FOD_APP_NAME=\"$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})\"" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
-          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
@@ -316,11 +316,11 @@ jobs:
             echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           else
             echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "FOD_APP_NAME=\"$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})\"" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
-          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
@@ -413,11 +413,11 @@ jobs:
             echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           else
             echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "FOD_APP_NAME=\"$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})\"" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
-          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
