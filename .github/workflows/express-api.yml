@@ -176,7 +176,7 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
-          fcli fod release list --app "$FOD_APP_NAME" --session github-actions
+          #fcli fod release list --app "$FOD_APP_NAME" --session github-actions
           echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
           RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
           echo "::debug::Created FOD_RELEASE_ID=${RELID}"
@@ -188,7 +188,6 @@ jobs:
           FOD_PARENT_RELEASE_NAME: ${{ vars.FOD_PARENT_RELEASE_NAME }}
 
       # For Debricked OSS scanning with FoD we need a dependencies file.
-      # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
       - name: Generate dependencies file
         working-directory: ${{ env.BASE_DIR }}
         shell: bash

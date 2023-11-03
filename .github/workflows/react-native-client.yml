@@ -188,8 +188,7 @@ jobs:
           FOD_PARENT_RELEASE_NAME: ${{ vars.FOD_PARENT_RELEASE_NAME }}
 
       # For Debricked OSS scanning with FoD we need a dependencies file.
-      # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
-      - name: Generate Gradle dependencies file
+      - name: Generate dependencies file
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: npm install --package-lock-only
