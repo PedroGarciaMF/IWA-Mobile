@@ -72,6 +72,63 @@ productRoutes.get('/api/products/:id', [AuthorizationHandler.permitAll], (req: R
     product_controller.get_product(req, res);
 });
 
+productRoutes.get('/api/products/:id/image', [AuthorizationHandler.permitAll], (req: Request, res: Response) => {
+    /*
+        #swagger.tags = ['Products']
+        #swagger.summary = "Get product image by Id"
+        #swagger.description = "Gets an existing product's image by its Id"
+        #swagger.parameters['name'] = {
+            description: 'Id of the product image to be retrieved. Cannot be empty.'
+        }
+        #swagger.responses[200] = {
+            description: "Success",
+            schema: { $ref: '#/components/schemas/success' }
+        }
+        #swagger.responses[400] = {
+            description: "Bad Request",
+            schema: { $ref: '#/components/schemas/failure' }
+        }
+        #swagger.responses[404] = {
+            description: "Product Not Found",
+            schema: { $ref: '#/components/schemas/failure' }
+        }
+        #swagger.responses[500] = {
+            description: "Internal Server Error",
+            schema: { $ref: '#/components/schemas/failure' }
+        }
+     */
+    product_controller.get_product_image_by_id(req, res);
+});
+
+productRoutes.get('/api/products/:name/image', [AuthorizationHandler.permitAll], (req: Request, res: Response) => {
+    /*
+        #swagger.tags = ['Products']
+        #swagger.summary = "Get product image by name"
+        #swagger.description = "Gets an existing product's image by its uploaded name"
+        #swagger.parameters['name'] = {
+            description: 'Name of the product image to be retrieved. Cannot be empty.'
+        }
+        #swagger.responses[200] = {
+            description: "Success",
+            schema: { $ref: '#/components/schemas/success' }
+        }
+        #swagger.responses[400] = {
+            description: "Bad Request",
+            schema: { $ref: '#/components/schemas/failure' }
+        }
+        #swagger.responses[404] = {
+            description: "Image Not Found",
+            schema: { $ref: '#/components/schemas/failure' }
+        }
+        #swagger.responses[500] = {
+            description: "Internal Server Error",
+            schema: { $ref: '#/components/schemas/failure' }
+        }
+     */
+    product_controller.get_product_image_by_name(req, res);
+});
+
+
 productRoutes.post('/api/products', [AuthenticationHandler.verifyJWT, AuthorizationHandler.permitAdmin], (req: Request, res: Response) => {
     /*
         #swagger.tags = ['Products']

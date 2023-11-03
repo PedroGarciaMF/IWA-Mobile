@@ -148,7 +148,7 @@ export default function ShoppingCart({navigation}) {
                         contentContainerStyle={styles.itemsListContainer}
                         data={items}
                         renderItem={({item}) => _renderItem(item)}
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item) => item.pid.toString()}
                         ListFooterComponent={Totals}
                     />
                     <View style={styles.buttonRow}>

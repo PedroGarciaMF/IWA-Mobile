@@ -122,11 +122,11 @@ export default function SearchProducts({navigation, maxResults = 50}) {
 
     const _renderProduct = product => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('Product', {pid: product.id})}>
+            <TouchableOpacity onPress={() => navigation.navigate('Product', {pid: product._id})}>
                 <View style={styles.product}>
                     <Image
                         style={styles.productImage}
-                        source={{uri: `${global.API_BASE}/products/${product.id}/image`}}
+                        source={{uri: `${global.API_BASE}/products/${product._id}/image`}}
                     />
                     <View style={styles.productDetails}>
 

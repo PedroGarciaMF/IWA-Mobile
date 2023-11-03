@@ -117,6 +117,7 @@
     "es2015"
   ],
   "typeRoots": [
+    "./src/typings/express-global/index.d.ts",
     "./src/typings",
     "node_modules/@types"
   ],

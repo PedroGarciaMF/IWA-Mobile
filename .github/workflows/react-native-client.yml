@@ -54,8 +54,8 @@ on:
 
 # Global environment variables
 env:
+  BASE_DIR: "./03-react-native-client"
   DEFAULT_APP_NAME: "IWA-Mobile"
-  #FCLI_VER: "v1.3"
   FCLI_VER: "v2.0.0"
   SCANCENTRAL_VER: "23.1.0"
 
@@ -80,7 +80,7 @@ jobs:
         with:
           node-version: 16
       - name: Install Dependencies
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         run: npm install --only=prod
 
   FoD-SAST-Scan:
@@ -111,20 +111,20 @@ jobs:
         with:
           node-version: 16
       - name: Install Dependencies
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         run: npm install --only=prod
 
       # set the FOD app name to be used throughout the workflow
       - name: Set FoD app name
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           else
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME=$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
+            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
@@ -133,7 +133,7 @@ jobs:
 
       # Get the branch name or pr number
       - name: Extract branch name
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
@@ -151,7 +151,7 @@ jobs:
 
       # Install Fortify Command Line (fcli) tool
       - name: Install fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           mkdir -p $HOME/fcli/bin
@@ -161,7 +161,7 @@ jobs:
 
       # Login to Fortify on Demand fcli session
       - name: Login fcll
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli --version
@@ -173,7 +173,7 @@ jobs:
 
       # Create FoD release for GitHub branch - if it doesn't already exist
       - name: Create FoD release
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli fod release list --app "$FOD_APP_NAME" --session github-actions
@@ -190,7 +190,7 @@ jobs:
       # For Debricked OSS scanning with FoD we need a dependencies file.
       # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
       - name: Generate Gradle dependencies file
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: npm install --package-lock-only
 
@@ -244,7 +244,7 @@ jobs:
 
       # Start Fortify on Demand SAST scan and wait until results complete.
       - name: Perform SAST scan
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
@@ -303,20 +303,20 @@ jobs:
         with:
           node-version: 16
       - name: Install Dependencies
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         run: npm install --only=prod
 
       # set the FOD app name to be used throughout the workflow
       - name: Set FoD app name
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           else
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME=$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
+            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
@@ -325,7 +325,7 @@ jobs:
 
       # Get the branch name or pr number
       - name: Extract branch name
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
@@ -343,7 +343,7 @@ jobs:
 
       # Install Fortify Command Line (fcli) tool
       - name: Install fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           mkdir -p $HOME/fcli/bin
@@ -352,13 +352,13 @@ jobs:
           echo "$HOME/fcli/bin" >> $GITHUB_PATH
 
       - name: Build Android Release
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         run: |
           cd android && sh ./gradlew assembleRelease    
 
       # Login Fortify on Demand fcli session
       - name: Login fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli --version
@@ -370,7 +370,7 @@ jobs:
 
       # Start Fortify on Demand Mobile scan and wait until results complete.
       - name: Perform Mobile scan
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli fod mast-scan start --release "${FOD_RELEASE_NAME}"  --framework Android --entitlement-frequency Subscription --assessment-type "Mobile Assessment" -f $APK_FILE --store curScan --session github-actions
@@ -384,7 +384,7 @@ jobs:
 
       # Logout/Close Fortify on Demand fcli session
       - name: Logout fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli fod session logout --session github-actions
@@ -405,15 +405,15 @@ jobs:
 
       # set the FOD app name to be used throughout the workflow
       - name: Set FoD app name
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
             echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
           else
-            echo "::debug::Setting FOD_APP_NAME environment variable to override: $APP_NAME_OVERRIDE"
-            echo "FOD_APP_NAME=$(echo ${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
+            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}_${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
@@ -422,7 +422,7 @@ jobs:
 
       # Get the branch name or pr number
       - name: Extract branch name
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
@@ -440,7 +440,7 @@ jobs:
 
       # Install Fortify Command Line (fcli) tool
       - name: Install fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           mkdir -p $HOME/fcli/bin
@@ -450,7 +450,7 @@ jobs:
 
       # Login Fortify on Demand fcli session
       - name: Login fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli --version
@@ -473,7 +473,7 @@ jobs:
 
       # Logout/Close Fortify on Demand fcli session
       - name: Logout fcli
-        working-directory: ./03-react-native-client
+        working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           fcli fod session logout --session github-actions

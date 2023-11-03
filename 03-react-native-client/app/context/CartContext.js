@@ -31,28 +31,28 @@ const CartProvider = ({children}) => {
   useEffect(() => {
     _(items).each(item => {
       console.log(
-        `item: ${item.id}, qty: ${item.qty}, totalPrice: ${item.totalPrice}, product: ${item.product.name}`,
+        `item: ${item._id}, qty: ${item.qty}, totalPrice: ${item.totalPrice}, product: ${item.product.name}`,
       );
     });
   }, [items]);
 
-  const addItemToCart = ({id}) => {
-    console.log(`CartContext::addItemToCart: adding product id: ${id} to cart`);
+  const addItemToCart = (pid) => {
+    console.log(`CartContext::addItemToCart: adding product id: ${pid} to cart`);
     /*var crypto = require('crypto');
     var encryptionKey = '';
     var algorithm = 'aes-256-ctr';
     var cipher = crypto.createCipher(algorithm, encryptionKey);*/
-    ProductsService.getProduct(id).then(product => {
+    ProductsService.getProduct(pid).then(product => {
       //console.log('INSIDE DATA', product);
-      const pid = product.id;
+      const p_id = product._id;
       setItems(prevItems => {
-        const item = prevItems.find(item => item.id == id);
+        const item = prevItems.find(item => item.pid == p_id);
         if (!item) {
           //console.log('adding new item');
           return [
             ...prevItems,
             {
-              id,
+              pid,
               qty: 1,
               product,
               totalPrice: product.price,
@@ -61,7 +61,7 @@ const CartProvider = ({children}) => {
         } else {
           //console.log('updating item quantity');
           return prevItems.map(item => {
-            if (item.id == id) {
+            if (item.pid == pid) {
               item.qty++;
               item.totalPrice += product.price;
             }

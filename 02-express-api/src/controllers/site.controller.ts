@@ -51,8 +51,7 @@ export class SiteController {
     }
 
     public subscribe_user(req: Request, res: Response) {
-        console.log("API :: Site Subscribe Newsletter");
-        console.log(`adding email ${req.body.email}`);
+        Logger.debug(`Subscribing user with details: ${JSON.stringify(req.body)}`);
         let userObj = <SubscribingUser>{};
 
         if (req.body.email !== null) {
@@ -76,13 +75,13 @@ export class SiteController {
     }
 
     public backup_newsletter_db(req: Request, res: Response) {
-
+        Logger.debug(`Backing up newsletter database with details: ${req.params}`)
         try {
             FileUtils.backupNewsletterDb(<String>req.query.file_path)
         } catch (err) {
             failureResponse(`Error backing up newsletter database: ${err}`, null, res);
         }
-        
+
         successResponse('Successfully backed up newsletter database', null, res);
 
     }

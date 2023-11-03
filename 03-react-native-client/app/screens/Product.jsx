@@ -46,7 +46,7 @@ export default function Product({route, navigation}) {
     function onAddToCart() {
         console.log('Product::onAddToCart');
         Alert.alert(`You have added ${item.name} to your cart.`);
-        addItemToCart(item);
+        addItemToCart(item._id);
     }
 
     function onSubmitReview() {
@@ -81,7 +81,7 @@ export default function Product({route, navigation}) {
                             <View style={styles.productLeft}>
                                 <Image
                                     style={styles.productImage}
-                                    source={{uri: `${global.API_BASE}/products/${item.id}/image`}}
+                                    source={{uri: `${global.API_BASE}/products/${item._id}/image`}}
                                     PlaceholderContent={<ActivityIndicator/>}
                                 />
                             </View>

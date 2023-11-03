@@ -5,6 +5,7 @@ import { IProduct } from '../modules/products/model';
 import Logger from "../middleware/logger";
 
 import ProductService from '../modules/products/service';
+import path from 'path';
 
 export class ProductController {
 
@@ -25,7 +26,7 @@ export class ProductController {
     }
 
     public get_product(req: Request, res: Response) {
-        Logger.debug(`Retrieving product with params: ${req.params}`);
+        Logger.debug(`Retrieving product with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
             const product_filter = { _id: req.params.id };
             this.product_service.filterProduct(product_filter, (err: any, product_data: IProduct) => {
@@ -40,8 +41,54 @@ export class ProductController {
         }
     }
 
+    public get_product_image_by_id(req: Request, res: Response) {
+        Logger.debug(`Retrieving product image with params: ${JSON.stringify(req.params)}`);
+        if (req.params.id) {
+            const product_filter = { _id: req.params.id };
+            this.product_service.filterProduct(product_filter, (err: any, product_data: IProduct) => {
+                if (err) {
+                    mongoError(err, res);
+                } else {
+                    // TODO: image file not found 404
+                    const imageName = product_data.image;
+                    Logger.debug(`Resolved to product image with name: ${imageName}`);
+                    res.sendFile(`${imageName}`, {
+                        root: path.join(global.__basedir, 'public', 'images', 'products')
+                    }, function (err) {
+                        if (err) {
+                            failureResponse(`Error sending image: ${err}`, null, res);
+                        } else {
+                            Logger.debug(`Sent image: ${imageName}`);
+                        }
+                    });
+                }
+            });
+
+        } else {
+            insufficientParameters(res);
+        }
+    }
+
+    public get_product_image_by_name(req: Request, res: Response) {
+        Logger.debug(`Retrieving product image with params: ${JSON.stringify(req.params)}`);
+        if (req.params.name) {
+            // TODO: image file not found 404
+            res.sendFile(`${req.params.name}.jpg`, {
+                root: path.join(global.__basedir, 'public', 'images', 'products')
+            }, function (err) {
+                if (err) {
+                    failureResponse(`Error sending image: ${err}`, null, res);
+                } else {
+                    Logger.debug(`Sent image: ${req.params.id}.jpg}`);
+                }
+            });
+        } else {
+            insufficientParameters(res);
+        }
+    }
+
     public create_product(req: Request, res: Response) {
-        Logger.debug(`Creating product with request body: ${req.body}`);
+        Logger.debug(`Creating product with request body: ${JSON.stringify(req.body)}`);
         // this check whether all the fields were sent through the request or not
         if (req.body.code && req.body.name && req.body.summary) {
 
@@ -78,7 +125,7 @@ export class ProductController {
     }
 
     public update_product(req: Request, res: Response) {
-        Logger.debug(`Updating product with params: ${req.params}`);
+        Logger.debug(`Updating product with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
             const product_filter = { _id: req.params.id };
             this.product_service.filterProduct(product_filter, (err: any, product_data: IProduct) => {
@@ -124,7 +171,7 @@ export class ProductController {
     }
 
     public delete_product(req: Request, res: Response) {
-        Logger.debug(`Deleting product with params: ${req.params}`);
+        Logger.debug(`Deleting product with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
             this.product_service.deleteProduct(req.params.id, (err: any, delete_details) => {
                 if (err) {

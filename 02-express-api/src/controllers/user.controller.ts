@@ -26,7 +26,7 @@ export class UserController {
     }
 
     public get_user(req: Request, res: Response) {
-        Logger.debug(`Retrieving user with params: ${req.params}`);
+        Logger.debug(`Retrieving user with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
             const user_filter = { _id: req.params.id };
             this.user_service.filterUser(user_filter, (err: any, user_data: IUser) => {
@@ -42,7 +42,7 @@ export class UserController {
     }
 
     public create_user(req: Request, res: Response) {
-        Logger.debug(`Creating user with request body: ${req.body}`);
+        Logger.debug(`Creating user with request body: ${JSON.stringify(req.body)}`);
         // this check whether all the fields were sent through with the request or not
         if (req.body.name && req.body.name.first_name && req.body.name.last_name &&
             req.body.email &&
@@ -90,7 +90,7 @@ export class UserController {
     }
 
     public update_user(req: Request, res: Response) {
-        Logger.debug(`Updating user with params: ${req.params}`);
+        Logger.debug(`Updating user with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
             const user_filter = { _id: req.params.id };
             this.user_service.filterUser(user_filter, (err: any, user_data: IUser) => {
@@ -144,7 +144,7 @@ export class UserController {
     }
 
     public delete_user(req: Request, res: Response) {
-        Logger.debug(`Deleting user with params: ${req.params}`);
+        Logger.debug(`Deleting user with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
             this.user_service.deleteUser(req.params.id, (err: any, delete_details) => {
                 if (err) {
