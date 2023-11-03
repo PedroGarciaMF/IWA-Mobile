@@ -28,13 +28,13 @@
 #   It is recommended to create credentials with 'Security Lead' Role selected.
 #   "Automated Audit preference" should be configured for the release's Static Scan Settings.
 
-name: React Native Client CI
+name: Express API CI
 
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     paths:
-      - '03-react-native-client/**'
+      - '02-express-api/**'
     branches:
       - '**'        # matches every branch
   pull_request:
@@ -47,15 +47,15 @@ on:
         description: 'Carry out SAST scan using Fortify on Demand'
         required: false
         default: 'true'
-      runFoDMASTScan:
-        description: 'Carry out MAST scan using Fortify on Demand'
+      runFoDDASTScan:
+        description: 'Carry out DAST API scan using Fortify on Demand'
         required: false
         default: 'true'
 
 # Global environment variables
 env:
-  BASE_DIR: "./03-react-native-client"
-  DEFAULT_APP_NAME: "IWA-Mobile"
+  BASE_DIR: "./02-express-api"
+  DEFAULT_APP_NAME: "IWA-Express"
   FCLI_VER: "v2.0.0"
   SCANCENTRAL_VER: "23.1.0"
 
@@ -189,7 +189,7 @@ jobs:
 
       # For Debricked OSS scanning with FoD we need a dependencies file.
       # For instructions on generating the resolved dependency tree file, see https://debricked.com/docs/language-support/java-kotlin.html#gradle.*
-      - name: Generate Gradle dependencies file
+      - name: Generate dependencies file
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: npm install --package-lock-only
@@ -222,10 +222,10 @@ jobs:
       - name: Package Code + Dependencies
         uses: TheDoctor0/zip-release@0.7.1
         with:
-          directory: ./03-react-native-client
+          directory: ./02-express-api
           type: 'zip'
           filename: 'package.zip'
-          exclusions: '*.git* __tests__ android/build android/gradle ios bin'
+          exclusions: '*.git* config logs'
 
       # Start Fortify on Demand SAST scan and wait until results complete. For more information on FoDUploader commands, see https://github.com/fod-dev/fod-uploader-java
       #- name: Download Fortify on Demand Universal CI Tool
@@ -285,9 +285,9 @@ jobs:
         run: |
           fcli fod session logout --session github-actions
 
-  FoD-MAST-Scan:
+  FoD-DAST-Scan:
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDMASTScan == 'true') }}
+    if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDDASTScan == 'true') }}
     needs: [ Build-And-Test, FoD-SAST-Scan ]
 
     steps:
@@ -373,12 +373,11 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
-          fcli fod mast-scan start --release "${FOD_RELEASE_NAME}"  --framework Android --entitlement-frequency Subscription --assessment-type "Mobile Assessment" -f $APK_FILE --store curScan --session github-actions
+          echo fcli fod dast-scan start-legacy --release "${FOD_RELEASE_NAME}" --entitlement-frequency Subscription --assessment-type "Dynamic API Assessment" --notes "${FOD_SCAN_NOTES}" --store curScan --session github-actions
           sleep 5
-          fcli fod mast-scan wait-for ::curScan:: --session github-actions
-        id: perform_mobile_scan
+          echo fcli fod dast-scan wait-for ::curScan:: --session github-actions
+        id: perform_dast_scan
         env:
-          APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
           FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
           FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
@@ -392,7 +391,7 @@ jobs:
   Security-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [ FoD-SAST-Scan, FoD-MAST-Scan ]
+    needs: [ FoD-SAST-Scan, FoD-DAST-Scan ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
