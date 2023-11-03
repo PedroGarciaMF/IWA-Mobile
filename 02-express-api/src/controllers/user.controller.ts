@@ -1,8 +1,27 @@
-import { Request, Response } from 'express';
+/*
+        IWA-Express - Insecure Express JS REST API
 
-import { insufficientParameters, mongoError, successResponse, failureResponse } from '../modules/common/service';
-import { IUser } from '../modules/users/model';
-import { EncryptUtils } from "../utils/encrypt.utils";
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+import {Request, Response} from 'express';
+
+import {failureResponse, insufficientParameters, mongoError, successResponse} from '../modules/common/service';
+import {IUser} from '../modules/users/model';
+import {EncryptUtils} from "../utils/encrypt.utils";
 import Logger from "../middleware/logger";
 
 import UserService from '../modules/users/service';
@@ -16,7 +35,7 @@ export class UserController {
         let user_filter = (req.query.keywords ? {$text: {$search: req.query.keywords}} : {});
         let offset = (req.query.offset ? Number(req.query.offset) : 0);
         let limit = (req.query.limit ? Number(req.query.limit) : 0);
-        this.user_service.filterUsers(user_filter, offset, limit,(err: any, user_data: IUser) => {
+        this.user_service.filterUsers(user_filter, offset, limit, (err: any, user_data: IUser) => {
             if (err) {
                 mongoError(err, res);
             } else {
@@ -28,7 +47,7 @@ export class UserController {
     public get_user(req: Request, res: Response) {
         Logger.debug(`Retrieving user with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            const user_filter = { _id: req.params.id };
+            const user_filter = {_id: req.params.id};
             this.user_service.filterUser(user_filter, (err: any, user_data: IUser) => {
                 if (err) {
                     mongoError(err, res);
@@ -92,7 +111,7 @@ export class UserController {
     public update_user(req: Request, res: Response) {
         Logger.debug(`Updating user with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            const user_filter = { _id: req.params.id };
+            const user_filter = {_id: req.params.id};
             this.user_service.filterUser(user_filter, (err: any, user_data: IUser) => {
                 if (err) {
                     mongoError(err, res);
@@ -146,7 +165,7 @@ export class UserController {
     public delete_user(req: Request, res: Response) {
         Logger.debug(`Deleting user with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            this.user_service.deleteUser(req.params.id, (err: any, delete_details) => {
+            this.user_service.deleteUser(req.params.id, (err: any, delete_details: any) => {
                 if (err) {
                     mongoError(err, res);
                 } else if (delete_details.deletedCount !== 0) {

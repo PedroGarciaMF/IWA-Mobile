@@ -1,28 +1,44 @@
-import {NextFunction, Request, Response} from 'express';
+/*
+        IWA-Express - Insecure Express JS REST API
+
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+import {Request, Response} from 'express';
 import {
+    failureResponse,
     insufficientParameters,
     mongoError,
     successResponse,
-    failureResponse,
     unauthorised
 } from '../modules/common/service';
-import { IUser } from '../modules/users/model';
-import { EncryptUtils } from "../utils/encrypt.utils";
+import {IUser} from '../modules/users/model';
+import {EncryptUtils} from "../utils/encrypt.utils";
 
 import Logger from "../middleware/logger";
 
 import UserService from '../modules/users/service';
 
 import {AuthenticationHandler} from "../middleware/authentication.handler";
-import {SubscribingUser} from "../common/types";
-
-import * as fs from "fs";
+import {JwtJson, SubscribingUser} from "../common/types";
 import {FileUtils} from "../utils/file.utils";
-import * as url from "url";
-import {File} from "buffer";
-const { JSDOM } = require( "jsdom" );
-const { window } = new JSDOM( "" );
-const jQuery = require( "jquery" )( window );
+
+const {JSDOM} = require("jsdom");
+const {window} = new JSDOM("");
+const jQuery = require("jquery")(window);
 
 export class SiteController {
 
@@ -39,7 +55,12 @@ export class SiteController {
                     mongoError(err, res);
                 } else {
                     if (user_data) {
-                        successResponse('Successfully logged in user', AuthenticationHandler.createJWT(user_data), res);
+                        const jwtJson: JwtJson = AuthenticationHandler.createJWT(user_data);
+                        // set cookie for refreshToken
+                        res.cookie('refreshToken', jwtJson.refreshToken,
+                            {httpOnly: true, sameSite: 'strict'}
+                        );
+                        successResponse('Successfully logged in user', jwtJson, res);
                     } else {
                         unauthorised('Invalid credentials', res);
                     }
@@ -83,7 +104,6 @@ export class SiteController {
         }
 
         successResponse('Successfully backed up newsletter database', null, res);
-
     }
 
 }

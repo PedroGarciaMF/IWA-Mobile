@@ -1,6 +1,6 @@
 {
   "App": {
-    "name": "IWA-MEAN - Express API",
+    "name": "IWA-Express - Express JS API",
     "description": "",
     "port":  3000,
     "dbConfig": {

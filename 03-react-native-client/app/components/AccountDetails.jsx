@@ -1,5 +1,5 @@
 /*
-        IWA-Mobile - Insecure mobile application
+        IWA-Mobile - Insecure React Native mobile application
 
         Copyright 2023 Open Text or one of its affiliates.
 
@@ -104,7 +104,7 @@ export default function AccountDetails({navigation, uid}) {
                 <ScrollView>
                     <ListItem style={styles.lTopPad}>
                         <ListItem.Content>
-                            <ListItem.Title>Welcome back, {data.firstName}</ListItem.Title>
+                            <ListItem.Title>Welcome back, {data.name.first_name}</ListItem.Title>
                             <View>
                                   <Text>{data.email}</Text>
                             </View>
@@ -114,10 +114,10 @@ export default function AccountDetails({navigation, uid}) {
                     <ListItem style={styles.sTopPad} onPress={() => handlePick("not-yet-implemented")}>
                         <ListItem.Content>
                             <View>
-                                <Text>{data.address}</Text>
-                                <Text>{data.city}</Text>
-                                <Text>{data.zip}</Text>
-                                <Text>{data.country}</Text>
+                                <Text>{data.address.street}</Text>
+                                <Text>{data.address.city}, {data.address.state}</Text>
+                                <Text>{data.address.zip}</Text>
+                                <Text>{data.address.country}</Text>
                             </View>
                         </ListItem.Content>
                         <ListItem.Chevron iconStyle={styles.lChevron}/>

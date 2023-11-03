@@ -1,5 +1,5 @@
 /*
-        IWA-Mobile - Insecure mobile application
+        IWA-Mobile - Insecure React Native mobile application
 
         Copyright 2023 Open Text or one of its affiliates.
 
@@ -74,18 +74,19 @@ const Login = () => {
         console.log(`Attempting to login user "${email}" with password "${password}"`);
         try {
             const response = await publicAxios.post('/site/sign-in', {
-                username: email,
+                email: email,
                 password: password,
             });
 
             const {id, accessToken, refreshToken} = response.data;
             authContext.setAuthState({
                 id,
+                email,
                 accessToken,
                 refreshToken,
                 authenticated: true,
             });
-            console.log(`Logged in successfully, retrieved accessToken "${accessToken}"`);
+            console.log(`Logged in user with id '${id}', retrieved accessToken "${accessToken}"`);
 
             await storeData(email, password);
             await Keychain.setGenericPassword(

@@ -26,5 +26,5 @@ COPY config ./config/
 # Make port 8080 available to the world outside this container
 EXPOSE 8080
 
-CMD [ "node", "app.js" ]
+CMD [ "node", "index.js" ]
 

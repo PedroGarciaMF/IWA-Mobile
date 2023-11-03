@@ -1,7 +1,26 @@
-import { Request, Response } from 'express';
+/*
+        IWA-Express - Insecure Express JS REST API
 
-import { insufficientParameters, mongoError, successResponse, failureResponse } from '../modules/common/service';
-import { IProduct } from '../modules/products/model';
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+import {Request, Response} from 'express';
+
+import {failureResponse, insufficientParameters, mongoError, successResponse} from '../modules/common/service';
+import {IProduct} from '../modules/products/model';
 import Logger from "../middleware/logger";
 
 import ProductService from '../modules/products/service';
@@ -16,7 +35,7 @@ export class ProductController {
         let product_filter = (req.query.keywords ? {$text: {$search: req.query.keywords}} : {});
         let offset = (req.query.offset ? Number(req.query.offset) : 0);
         let limit = (req.query.limit ? Number(req.query.limit) : 0);
-        this.product_service.filterProducts(product_filter, offset, limit,(err: any, product_data: IProduct) => {
+        this.product_service.filterProducts(product_filter, offset, limit, (err: any, product_data: IProduct) => {
             if (err) {
                 mongoError(err, res);
             } else {
@@ -28,7 +47,7 @@ export class ProductController {
     public get_product(req: Request, res: Response) {
         Logger.debug(`Retrieving product with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            const product_filter = { _id: req.params.id };
+            const product_filter = {_id: req.params.id};
             this.product_service.filterProduct(product_filter, (err: any, product_data: IProduct) => {
                 if (err) {
                     mongoError(err, res);
@@ -44,7 +63,7 @@ export class ProductController {
     public get_product_image_by_id(req: Request, res: Response) {
         Logger.debug(`Retrieving product image with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            const product_filter = { _id: req.params.id };
+            const product_filter = {_id: req.params.id};
             this.product_service.filterProduct(product_filter, (err: any, product_data: IProduct) => {
                 if (err) {
                     mongoError(err, res);
@@ -127,7 +146,7 @@ export class ProductController {
     public update_product(req: Request, res: Response) {
         Logger.debug(`Updating product with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            const product_filter = { _id: req.params.id };
+            const product_filter = {_id: req.params.id};
             this.product_service.filterProduct(product_filter, (err: any, product_data: IProduct) => {
                 if (err) {
                     mongoError(err, res);
@@ -173,7 +192,7 @@ export class ProductController {
     public delete_product(req: Request, res: Response) {
         Logger.debug(`Deleting product with params: ${JSON.stringify(req.params)}`);
         if (req.params.id) {
-            this.product_service.deleteProduct(req.params.id, (err: any, delete_details) => {
+            this.product_service.deleteProduct(req.params.id, (err: any, delete_details: any) => {
                 if (err) {
                     mongoError(err, res);
                 } else if (delete_details.deletedCount !== 0) {

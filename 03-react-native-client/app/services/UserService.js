@@ -1,5 +1,5 @@
 /*
-        IWA-Mobile - Insecure mobile application
+        IWA-Mobile - Insecure React Native mobile application
 
         Copyright 2023 Open Text or one of its affiliates.
 
@@ -19,9 +19,6 @@
 
 import axios from 'axios';
 import '../Global.js';
-
-import {AuthContext} from '../context/AuthContext';
-import {AxiosContext} from '../context/AxiosContext';
 
 const UserService = {
   getUser: async function (uid = '') {

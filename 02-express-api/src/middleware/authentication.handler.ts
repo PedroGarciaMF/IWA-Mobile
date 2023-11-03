@@ -1,8 +1,26 @@
+/*
+        IWA-Express - Insecure Express JS REST API
+
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import Logger from "./logger";
 import {IUser} from "../modules/users/model";
 import jwt from "jsonwebtoken";
 import config from "config";
-import moment from 'moment';
 import {JwtJson} from "../common/types";
 import {NextFunction, Request, Response} from "express";
 import {forbidden, unauthorised} from "../modules/common/service";
@@ -14,16 +32,21 @@ export class AuthenticationHandler {
 
     public static createJWT(user_data: IUser): JwtJson {
         console.log(`Creating JWT authentication token using secret: ${jwtSecret}`);
-        const expiryDate = moment().add(jwtExpiration).seconds();
-        const token = jwt.sign({userId: user_data._id, email: user_data.email, role: (user_data.is_admin ? 'admin' : 'user')}, jwtSecret, {
-            expiresIn: jwtExpiration,
+        const accessToken = jwt.sign({id: user_data._id, email: user_data.email}, jwtSecret, {
+            expiresIn: '1h',
         })
+        const refreshToken = jwt.sign({id: user_data._id, email: user_data.email}, jwtSecret, {
+            expiresIn: '1d',
+        })
+        console.log(`Created accessToken: ${accessToken}`);
+        console.log(`Created refreshToken: ${refreshToken}`);
         return {
-            userId: user_data._id,
+            id: user_data._id,
             email: user_data.email,
-            role: user_data.is_admin ? 'admin' : 'user',
-            token: token,
-            expires: expiryDate
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            tokenExpiration: jwtExpiration,
+            tokenType: 'Bearer'
         }
     }
 
@@ -39,9 +62,8 @@ export class AuthenticationHandler {
                     forbidden(`The JWT authentication token has expired`, res);
                 }
                 if (req.session) {
-                    req.session.userId = (<any>data).userId;
+                    req.session.userId = (<any>data).id;
                     req.session.email = (<any>data).email;
-                    req.session.role = (<any>data).role;
                 }
                 next();
             });

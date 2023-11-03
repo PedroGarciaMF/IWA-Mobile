@@ -1,4 +1,5 @@
-[![Fortify Security Scan](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/fortify.yml/badge.svg)](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/fortify.yml)
+[![Fortify Security Scan](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/express-api.yml/badge.svg)](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/express-api.yml)
+[![Fortify Security Scan](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/react-native-client.yml/badge.svg)](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/react-native-client.yml)
 
 # IWA-Mobile
 
@@ -67,23 +68,19 @@ on how to start up the Metro Bundler and running the application first. Then in 
 ```aidl
 cd 03-react-native-client
 npm install
-npx react-native start
+npm run dev
 ```
 
-then press `a` for *run on android*, alternatively in another terminal (assuming you are using an Android emulator):
-
-```aidl
-npx react-native run-android
-```
+then press `a` for *run on android*.
 
 If your environment is configured correctly, the Android emulator should startup with the application running.
-Finally, to create a proxy from the IWA-Java API running locally to the application running on the emulator:
+Finally, to create a proxy from the Express API running locally to the application running on the emulator:
 
 ```aidl
 adb reverse tcp:3000 tcp:3000
 ```
 
-Press `r` in the **react-native** console to reload the appand the application should now be ready to use.
+Press `r` in the **react-native** console to reload the app and the application should now be ready to use.
 
 **iOS**
 

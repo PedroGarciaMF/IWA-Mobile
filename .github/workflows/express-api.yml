@@ -350,11 +350,6 @@ jobs:
           echo "::debug::PATH=$HOME/fcli/bin"         
           echo "$HOME/fcli/bin" >> $GITHUB_PATH
 
-      - name: Build Android Release
-        working-directory: ${{ env.BASE_DIR }}
-        run: |
-          cd android && sh ./gradlew assembleRelease    
-
       # Login Fortify on Demand fcli session
       - name: Login fcli
         working-directory: ${{ env.BASE_DIR }}
@@ -367,14 +362,14 @@ jobs:
           FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
           FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 
-      # Start Fortify on Demand Mobile scan and wait until results complete.
-      - name: Perform Mobile scan
+      # Start Fortify on Demand DAST API scan and wait until results complete.
+      - name: Perform DAST API scan
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
-          echo fcli fod dast-scan start-legacy --release "${FOD_RELEASE_NAME}" --entitlement-frequency Subscription --assessment-type "Dynamic API Assessment" --notes "${FOD_SCAN_NOTES}" --store curScan --session github-actions
+          #echo fcli fod dast-scan start-legacy --release "${FOD_RELEASE_NAME}" --entitlement-frequency Subscription --assessment-type "Dynamic API Assessment" --notes "${FOD_SCAN_NOTES}" --store curScan --session github-actions
           sleep 5
-          echo fcli fod dast-scan wait-for ::curScan:: --session github-actions
+          #echo fcli fod dast-scan wait-for ::curScan:: --session github-actions
         id: perform_dast_scan
         env:
           FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}

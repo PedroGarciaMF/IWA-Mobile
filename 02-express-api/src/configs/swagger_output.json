@@ -318,12 +318,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/success"
+                  "$ref": "#/components/schemas/jwtJson"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/success"
+                  "$ref": "#/components/schemas/jwtJson"
                 }
               }
             }
@@ -535,10 +535,66 @@
     },
     "/api/site/backup-newsletter-db": {
       "post": {
-        "description": "",
+        "tags": [
+          "Site"
+        ],
+        "summary": "Backup the newsletter database",
+        "description": "Compress and backup the newsletter database to the specified file",
+        "parameters": [
+          {
+            "name": "file_path",
+            "in": "query",
+            "description": "The file to backup the database to. Cannot be empty.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/success"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              }
+            }
           }
         }
       }
@@ -1885,6 +1941,46 @@
         ],
         "xml": {
           "name": "failure"
+        }
+      },
+      "jwtJson": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "string"
+          },
+          "email": {
+            "type": "string",
+            "example": "string"
+          },
+          "accessToken": {
+            "type": "string",
+            "example": "string"
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "string"
+          },
+          "tokenExpiration": {
+            "type": "number",
+            "example": 1000000
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "accessToken",
+          "refreshToken",
+          "tokenExpiration",
+          "tokenType"
+        ],
+        "xml": {
+          "name": "jwtJson"
         }
       }
     },

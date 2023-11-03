@@ -1,20 +1,39 @@
+/*
+        IWA-Express - Insecure Express JS REST API
+
+        Copyright 2023 Open Text or one of its affiliates.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import {Request, Response, Router} from 'express';
 
 import {UserController} from '../controllers/user.controller';
 import {AuthenticationHandler} from "../middleware/authentication.handler";
 import {AuthorizationHandler} from "../middleware/authorization.handler";
-import {siteRoutes} from "./site.routes";
+import Logger from "../middleware/logger";
 
 const user_controller: UserController = new UserController();
 
 export const userRoutes = Router();
 
-userRoutes.param('id', function(req, res, next, id, name){
-    console.log('User id parameter is: ' + id); //specified _id_ value comes from URL
+userRoutes.param('id', function (req, res, next, id, name) {
+    Logger.debug('User id parameter is: ' + id); //specified _id_ value comes from URL
     next();
 });
 
-userRoutes.get('/api/users',[AuthenticationHandler.verifyJWT, AuthorizationHandler.permitSelf], (req: Request, res: Response) => {
+userRoutes.get('/api/users', [AuthenticationHandler.verifyJWT, AuthorizationHandler.permitSelf], (req: Request, res: Response) => {
     /*
         #swagger.tags = ['Users']
         #swagger.summary = "Find users by keyword(s)"
@@ -51,7 +70,7 @@ userRoutes.get('/api/users',[AuthenticationHandler.verifyJWT, AuthorizationHandl
     user_controller.get_users(req, res);
 });
 
-userRoutes.get('/api/users/:id',[AuthenticationHandler.verifyJWT, AuthorizationHandler.permitSelf], (req: Request, res: Response) => {
+userRoutes.get('/api/users/:id', [AuthenticationHandler.verifyJWT, AuthorizationHandler.permitSelf], (req: Request, res: Response) => {
     /*
        #swagger.tags = ['Users']
        #swagger.summary = "Get a user"
@@ -79,7 +98,7 @@ userRoutes.get('/api/users/:id',[AuthenticationHandler.verifyJWT, AuthorizationH
     user_controller.get_user(req, res);
 });
 
-userRoutes.post('/api/users',[AuthenticationHandler.verifyJWT, AuthorizationHandler.permitAdmin], (req: Request, res: Response) => {
+userRoutes.post('/api/users', [AuthenticationHandler.verifyJWT, AuthorizationHandler.permitAdmin], (req: Request, res: Response) => {
     /*
           #swagger.tags = ['Users']
           #swagger.summary = "Create new user"

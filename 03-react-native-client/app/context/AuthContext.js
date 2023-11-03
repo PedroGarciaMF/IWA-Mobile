@@ -1,5 +1,5 @@
 /*
-        IWA-Mobile - Insecure mobile application
+        IWA-Mobile - Insecure React Native mobile application
 
         Copyright 2023 Open Text or one of its affiliates.
 
@@ -25,18 +25,20 @@ const {Provider} = AuthContext;
 
 const AuthProvider = ({children}) => {
   const [authState, setAuthState] = useState({
-    id: null,
-    accessToken: null,
-    refreshToken: null,
-    authenticated: null,
+    id: '',
+    email: '',
+    accessToken: '',
+    refreshToken: '',
+    authenticated: false,
   });
 
   const logout = async () => {
     await Keychain.resetGenericPassword();
     setAuthState({
-      id: null,
-      accessToken: null,
-      refreshToken: null,
+      id: '',
+      email: '',
+      accessToken: '',
+      refreshToken: '',
       authenticated: false,
     });
   };
@@ -45,8 +47,16 @@ const AuthProvider = ({children}) => {
     return authState.id;
   };
 
+  const getEmail = () => {
+    return authState.email;
+  };
+
   const getAccessToken = () => {
     return authState.accessToken;
+  };
+
+  const getRefreshToken = () => {
+    return authState.refreshToken;
   };
 
   return (
@@ -54,7 +64,9 @@ const AuthProvider = ({children}) => {
       value={{
         authState,
         getId,
+        getEmail,
         getAccessToken,
+        getRefreshToken,
         setAuthState,
         logout,
       }}>
