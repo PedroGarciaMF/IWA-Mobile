@@ -23,6 +23,11 @@ import {UserController} from '../controllers/user.controller';
 import {AuthenticationHandler} from "../middleware/authentication.handler";
 import {AuthorizationHandler} from "../middleware/authorization.handler";
 import Logger from "../middleware/logger";
+import {IUser} from "../modules/users/model";
+import {mongoError, successResponse} from "../modules/common/service";
+import {EncryptUtils} from "../utils/encrypt.utils";
+
+import users from '../modules/users/schema';
 
 const user_controller: UserController = new UserController();
 
@@ -96,6 +101,43 @@ userRoutes.get('/api/users/:id', [AuthenticationHandler.verifyJWT, Authorization
        }
     */
     user_controller.get_user(req, res);
+});
+
+userRoutes.get('/api/user/', [AuthorizationHandler.permitAll], (req: Request, res: Response) => {
+    /*
+       #swagger.tags = ['Users']
+       #swagger.summary = "Get a user using query"
+       #swagger.description = "Gets an existing user using a MongoDb Query"
+       #swagger.parameters['q'] = {
+           description: 'MongoDb query'
+       }
+       #swagger.responses[200] = {
+           description: "Success",
+           schema: { $ref: '#/components/schemas/success' }
+       }
+       #swagger.responses[400] = {
+           description: "Bad Request",
+           schema: { $ref: '#/components/schemas/failure' }
+       }
+       #swagger.responses[404] = {
+           description: "User Not Found",
+           schema: { $ref: '#/components/schemas/failure' }
+       }
+       #swagger.responses[500] = {
+           description: "Internal Server Error",
+           schema: { $ref: '#/components/schemas/failure' }
+       }
+    */
+
+    Logger.debug(`Retrieving user using query: ${JSON.stringify(req.query)}`);
+    const userQuery = req.query.q;
+    users.findOne({ userQuery }, (err: any, user_data: IUser) => {
+        if (err) {
+            mongoError(err, res);
+        } else {
+            successResponse('Successfully retrieved user', user_data, res);
+        }
+    });
 });
 
 userRoutes.post('/api/users', [AuthenticationHandler.verifyJWT, AuthorizationHandler.permitAdmin], (req: Request, res: Response) => {
