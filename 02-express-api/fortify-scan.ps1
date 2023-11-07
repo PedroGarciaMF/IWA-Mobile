@@ -12,7 +12,7 @@ $ScanSwitches = ""
 
 Write-Host Running translation...
 & sourceanalyzer '-Dcom.fortify.sca.ProjectRoot=.fortify' $ScanSwitches -b "$AppName" -verbose `
--exclude ".\config" ".\src" -exclude ".\node_modules" -exclude ".\src\configs\swagger_output.json"
+-exclude ".\config" ".\src" -exclude ".\node_modules"
 
 Write-Host Running scan...
 & sourceanalyzer '-Dcom.fortify.sca.ProjectRoot=.fortify' $ScanSwitches -b "$AppName" -verbose `
