@@ -127,8 +127,8 @@ jobs:
           fi
         env:
           APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
-          DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME }}
-          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', 'FOD_APP_NAME', env.APP_NAME_OVERRIDE }}
+          DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
+          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', 'FOD_APP_NAME', env.APP_NAME_OVERRIDE) }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
