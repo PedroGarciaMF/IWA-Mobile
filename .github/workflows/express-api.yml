@@ -316,21 +316,22 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}
         run: npm install --only=prod
 
-      # set the FOD app name to be used throughout the workflow
+      # set the FOD_APP_NAME environment variable to be used throughout the workflow
       - name: Set FoD app name
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: '$DEFAULT_APP_NAME'"
+            echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
           else
-            echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "::debug::Setting FOD_APP_NAME to override: '$DEFAULT_APP_NAME $APP_NAME_OVERRIDE'"
+            echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
           fi
         env:
-          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
           APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
+          DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
+          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', 'FOD_APP_NAME', env.APP_NAME_OVERRIDE) }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
@@ -407,21 +408,22 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      # set the FOD app name to be used throughout the workflow
+      # set the FOD_APP_NAME environment variable to be used throughout the workflow
       - name: Set FoD app name
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: '$DEFAULT_APP_NAME'"
+            echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
           else
-            echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "::debug::Setting FOD_APP_NAME to override: '$DEFAULT_APP_NAME $APP_NAME_OVERRIDE'"
+            echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
           fi
         env:
-          DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
           APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
+          DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
+          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', 'FOD_APP_NAME', env.APP_NAME_OVERRIDE) }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
