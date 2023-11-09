@@ -114,3 +114,14 @@ adb -S YOUR_DEVICE_ID install "FULL_PATH_TO\android\app\build\outputs\apk\releas
 **iOS**
 
 TBD
+
+
+**Extra: Exposing Express API to the Internet**
+
+You can expose the local Node/Express API to the internet using [localtunnel](https://localtunnel.github.io/www/)
+using the following:
+
+```agsl
+npm install -g localtunnel
+lt --port 3000
+```

@@ -55,8 +55,7 @@ on:
 # Global environment variables
 env:
   BASE_DIR: "./02-express-api"
-  DEFAULT_APP_NAME: "IWA-Express"
-  FCLI_VER: "v2.0.0"
+  DEFAULT_APP_NAME: "IWA-API"
   SCANCENTRAL_VER: "23.1.0"
 
 jobs:
@@ -114,21 +113,41 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}
         run: npm install --only=prod
 
-      # set the FOD app name to be used throughout the workflow
+      # set the FOD_APP_NAME environment variable to be used throughout the workflow
       - name: Set FoD app name
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
           if [[ -z "$APP_NAME_OVERRIDE" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME})" >> $GITHUB_ENV
+            echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
           else
-            echo "::debug::Appending $APP_NAME_OVERRIDE to FOD_APP_NAME environment variable"
-            echo "FOD_APP_NAME=$(echo ${DEFAULT_APP_NAME}${APP_NAME_OVERRIDE})" >> $GITHUB_ENV
+            echo "::debug::Setting FOD_APP_NAME to override: $OVERRIDE_FOD_APP_NAME"
+            echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
+          fi
+        env:
+          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME }}
+          DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', "FOD_APP_NAME", env.DEFAULT_APP_NAME }}
+          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', "FOD_APP_NAME", env.APP_NAME_OVERRIDE }}
+        id: set_fod_app_name
+
+      # set the FOD app name to be used throughout the workflow
+      - name: Set FoD app name
+        working-directory: ${{ env.BASE_DIR }}
+        shell: bash
+        run: |
+          if [[ -z "$APP_NAME_POSTFIX" ]]; then
+            echo "::debug::Setting FOD_APP_NAME environment variable to default: $DEFAULT_APP_NAME"
+            echo "${DEFAULT_FOD_APP_NAME}" >> $GITHUB_ENV
+          else
+            echo "::debug::Setting FOD_APP_NAME environment variable to override: '$DEFAULT_APP_NAME $APP_NAME_POSTFIX'"
+            echo "${OVERRIDE_FOD_APP_NAME}" >> $GITHUB_ENV
           fi
         env:
           DEFAULT_APP_NAME: ${{ env.DEFAULT_APP_NAME }}
-          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
+          APP_NAME_POSTFIX: ${{ vars.FOD_APP_NAME_POSTFIX }}
+          DEFAULT_FOD_APP_NAME: ${{ format('{0}={1}', "FOD_APP_NAME", env.DEFAULT_APP_NAME }}
+          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1} {2}', "FOD_APP_NAME", env.DEFAULT_APP_NAME, env.APP_NAME_POSTFIX }}
         id: set_fod_app_name
 
       # Get the branch name or pr number
@@ -150,17 +169,28 @@ jobs:
         id: extract_branch
 
       # Install Fortify Command Line (fcli) tool
-      - name: Install fcli
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: |
-          mkdir -p $HOME/fcli/bin
-          curl -fsSL https://github.com/fortify-ps/fcli/releases/download/${FCLI_VER}/fcli-linux.tgz | tar -zxvf - -C $HOME/fcli/bin
-          echo "::debug::PATH=$HOME/fcli/bin"
-          echo "$HOME/fcli/bin" >> $GITHUB_PATH
+      #- name: Install fcli
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: |
+      #    mkdir -p $HOME/fcli/bin
+      #    curl -fsSL https://github.com/fortify-ps/fcli/releases/download/${FCLI_VER}/fcli-linux.tgz | tar -zxvf - -C $HOME/fcli/bin
+      #    echo "::debug::PATH=$HOME/fcli/bin"
+      #    echo "$HOME/fcli/bin" >> $GITHUB_PATH
+
+      # Install Fortify tools
+      - name: Setup Fortify tools
+        uses: fortify/github-action/setup@v1
+        with:
+          export-path: true
+          fcli: latest
+          sc-client: 23.1.0
+          fod-uploader: latest
+          vuln-exporter: v2
+          bugtracker-utility: skip
 
       # Login to Fortify on Demand fcli session
-      - name: Login fcll
+      - name: Login fcli
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
