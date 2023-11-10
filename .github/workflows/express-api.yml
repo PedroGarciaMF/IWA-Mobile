@@ -88,20 +88,20 @@ jobs:
 
       # Java is required to run the various Fortify utilities.
       # Setup JDK 11 on host
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
+      #- uses: actions/setup-java@v3
+      #  with:
+      #    distribution: 'temurin'
+      #    java-version: '11'
 
       # Install appropriate version of Node.Js
       # and install project dependencies from npm
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Install Dependencies
-        working-directory: ${{ env.BASE_DIR }}
-        run: npm install --only=prod
+      #- name: Setup Node
+      #  uses: actions/setup-node@v3
+      #  with:
+      #    node-version: 16
+      #- name: Install Dependencies
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  run: npm install --only=prod
 
       # set the FOD_APP_NAME environment variable to be used throughout the workflow
       - name: Set FoD app name
@@ -139,50 +139,60 @@ jobs:
           SOURCE_BRANCH: ${{ github.head_ref }}
         id: extract_branch
 
-      # Install Fortify tools
-      - name: Setup Fortify tools
-        uses: fortify/github-action/setup@v1
+      - name: Node FoD SAST scan
+        uses: ./.github/actions/node-fod-sast-scan
         with:
-          export-path: true
-          fcli: latest
-          sc-client: 23.1.0
-          fod-uploader: latest
-          vuln-exporter: v2
-          bugtracker-utility: skip
+          working-directory: ${{ env.BASE_DIR }}
+          fod-api-uri: ${{ vars.FOD_API_URI }}
+          fod-client-id: ${{ secrets.FOD_CLIENT_ID }}
+          fod-client-secret: ${{ secrets.FOD_CLIENT_SECRET }}
+          fod-app-name: ${{ env.FOD_APP_NAME }}
+          fod-release-name: ${{ steps.extract_branch.outputs.branch }}
+
+      # Install Fortify tools
+      #- name: Setup Fortify tools
+      #  uses: fortify/github-action/setup@v1
+      #  with:
+      #    export-path: true
+      #    fcli: latest
+      #    sc-client: 23.1.0
+      #    fod-uploader: latest
+      #    vuln-exporter: v2
+      #    bugtracker-utility: skip
 
       # Login to Fortify on Demand fcli session
-      - name: Login fcli
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: |
-          fcli --version
-          fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
-        env:
-          FOD_API_URI: ${{ vars.FOD_API_URI }}
-          FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
-          FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
+      #- name: Login fcli
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: |
+      #    fcli --version
+      #    fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
+      #  env:
+      #    FOD_API_URI: ${{ vars.FOD_API_URI }}
+      #    FOD_CLIENT_ID: ${{ secrets.FOD_CLIENT_ID }}
+      #    FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 
       # Create FoD release for GitHub branch - if it doesn't already exist
-      - name: Create FoD release
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: |
-          fcli fod release list --app "$FOD_APP_NAME" --session github-actions
-          echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
-          RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-          echo "::debug::Created FOD_RELEASE_ID=${RELID}"
-          echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
-        id: create_fod_release
-        env:
-          FOD_APP_NAME: ${{ env.FOD_APP_NAME }}
-          FOD_RELEASE_NAME: ${{ steps.extract_branch.outputs.branch }}
-          FOD_PARENT_RELEASE_NAME: ${{ vars.FOD_PARENT_RELEASE_NAME }}
+      #- name: Create FoD release
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: |
+      #    fcli fod release list --app "$FOD_APP_NAME" --session github-actions
+      #    echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
+      #    RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
+      #    echo "::debug::Created FOD_RELEASE_ID=${RELID}"
+      #    echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
+      #  id: create_fod_release
+      #  env:
+      #    FOD_APP_NAME: ${{ env.FOD_APP_NAME }}
+      #    FOD_RELEASE_NAME: ${{ steps.extract_branch.outputs.branch }}
+      #    FOD_PARENT_RELEASE_NAME: ${{ vars.FOD_PARENT_RELEASE_NAME }}
 
       # For Debricked OSS scanning with FoD we need a dependencies file.
-      - name: Generate dependencies file
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: npm install --package-lock-only
+      #- name: Generate dependencies file
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: npm install --package-lock-only
 
       # Prepare source+dependencies for upload. The default example is for a Maven project that uses pom.xml.
       # Update PACKAGE_OPTS based on the ScanCentral Client documentation for your project's included tech stack(s). Helpful hints:
@@ -209,13 +219,13 @@ jobs:
           #    retention-days: 5
 
       # Since this is a React Native Javascript project we can simply Zip up source rather than use scancentral command from above
-      - name: Package Code + Dependencies
-        uses: TheDoctor0/zip-release@0.7.1
-        with:
-          directory: ./02-express-api
-          type: 'zip'
-          filename: 'package.zip'
-          exclusions: '*.git* config logs'
+      #- name: Package Code + Dependencies
+      #  uses: TheDoctor0/zip-release@0.7.1
+      #  with:
+      #    directory: ./02-express-api
+      #    type: 'zip'
+      #    filename: 'package.zip'
+      #    exclusions: '*.git* config logs'
 
       # Start Fortify on Demand SAST scan and wait until results complete. For more information on FoDUploader commands, see https://github.com/fod-dev/fod-uploader-java
       #- name: Download Fortify on Demand Universal CI Tool
@@ -233,47 +243,47 @@ jobs:
       #    FOD_UPLOADER_NOTES: 'Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
 
       # Start Fortify on Demand SAST scan and wait until results complete.
-      - name: Perform SAST scan
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: |
-          fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
-          sleep 5
-          fcli fod sast-scan wait-for ::curScan:: --session github-actions
-        id: perform_sast_scan
-        env:
-          PACKAGE_FILE: "package.zip"
-          FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
-          FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+      #- name: Perform SAST scan
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: |
+      #    fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+      #    sleep 5
+      #    fcli fod sast-scan wait-for ::curScan:: --session github-actions
+      #  id: perform_sast_scan
+      #  env:
+      #    PACKAGE_FILE: "package.zip"
+      #    FOD_RELEASE_NAME: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
+      #    FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
       # Pull SAST issues from Fortify on Demand and generate GitHub-optimized SARIF output
-      - name: Export Results
-        uses: fortify/gha-export-vulnerabilities@v1.0.2
-        with:
-          fod_base_url: ${{ vars.FOD_BASE_URL }}
-          fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
-          fod_client_secret: ${{ secrets.FOD_CLIENT_SECRET }}
-          fod_release_name: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
+      #- name: Export Results
+      #  uses: fortify/gha-export-vulnerabilities@v1.0.2
+      #  with:
+      #    fod_base_url: ${{ vars.FOD_BASE_URL }}
+      #    fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
+      #    fod_client_secret: ${{ secrets.FOD_CLIENT_SECRET }}
+      #    fod_release_name: ${{ format('{0}:{1}', env.FOD_APP_NAME, steps.extract_branch.outputs.branch) }}
 
       # Check if SARIF output file has been created
-      - name: Check file existence
-        id: check_files_fod
-        uses: andstor/file-existence-action@v2
-        with:
-          files: "./03-react-native-client/gh-fortify-sast.sarif"
+      #- name: Check file existence
+      #  id: check_files_fod
+      #  uses: andstor/file-existence-action@v2
+      #  with:
+      #    files: "./03-react-native-client/gh-fortify-sast.sarif"
 
       # Import Fortify SAST results to GitHub Security Code Scanning
-      - name: Import Results
-        if: steps.check_files_fod.outputs.files_exists == 'true'
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: "./03-react-native-client/gh-fortify-sast.sarif"
+      #- name: Import Results
+      #  if: steps.check_files_fod.outputs.files_exists == 'true'
+      #  uses: github/codeql-action/upload-sarif@v2
+      #  with:
+      #    sarif_file: "./03-react-native-client/gh-fortify-sast.sarif"
 
       # Logout/Close Fortify on Demand fcli session
-      - name: Logout fcli
-        shell: bash
-        run: |
-          fcli fod session logout --session github-actions
+      #- name: Logout fcli
+      #  shell: bash
+      #  run: |
+      #    fcli fod session logout --session github-actions
 
   FoD-DAST-Scan:
     runs-on: ubuntu-latest
