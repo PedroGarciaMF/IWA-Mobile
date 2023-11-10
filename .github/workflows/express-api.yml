@@ -1,20 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
 
-################################################################################################################################################
-# Fortify lets you build secure software fast with an appsec platform that automates testing throughout the DevSecOps pipeline. Fortify static,#
-# dynamic, interactive, and runtime security testing is available on premises or as a service. To learn more about Fortify, start a free trial #
-# or contact our sales team, visit microfocus.com/appsecurity.                                                                                 #
-#                                                                                                                                              #
-# Use this workflow template as a basis for integrating Fortify on Demand Application Security Testing into your GitHub workflows.             #
-# This template demonstrates the steps to prepare the code+dependencies, initiate a scan, download results once complete and import into       #
-# GitHub Security Code Scanning Alerts. Existing customers should review inputs and environment variables below to configure scanning against  #
-# an existing application in your Fortify on Demand tenant. Additional information is available in the comments throughout the workflow, the   #
-# documentation for the Fortify actions used, and the Fortify on Demand / ScanCentral Client product documentation. If you need additional     #
-# assistance with configuration, feel free to create a help ticket in the Fortify on Demand portal.                                            #
-################################################################################################################################################
 
 # Create GitHub Action Repository Variables for your version of the application:
 #   FOD_BASE_URL should be FoD BASE URL for your tenant (e.g. https://emea.fortify.com)
@@ -63,8 +47,8 @@ jobs:
   Build-And-Test:
     runs-on: ubuntu-latest
 
-    # Checkout the code
     steps:
+      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v3.3.0
         with:
@@ -74,6 +58,8 @@ jobs:
       - run: git checkout HEAD^2
         if: ${{ github.event_name == 'pull_request' }}
 
+      # Install appropriate version of Node.Js
+      # and install project dependencies from npm
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -82,13 +68,15 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}
         run: npm install --only=prod
 
+      # TODO: run unit tests
+
   FoD-SAST-Scan:
     runs-on: ubuntu-latest
     if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDSASTScan == 'true') }}
     needs: [ Build-And-Test ]
 
-    # Checkout the code
     steps:
+      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v3.3.0
         with:
@@ -105,6 +93,8 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      # Install appropriate version of Node.Js
+      # and install project dependencies from npm
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -308,6 +298,8 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      # Install appropriate version of Node.Js
+      # and install project dependencies from npm
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
