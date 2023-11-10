@@ -108,7 +108,7 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}
         shell: bash
         run: |
-          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
+          if [[ -z "$APP_NAME_POSTFIX" ]]; then
             echo "::debug::Setting FOD_APP_NAME environment variable to default: '$DEFAULT_APP_NAME'"
             echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
           else
@@ -116,6 +116,7 @@ jobs:
             echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
           fi
         env:
+          APP_NAME_POSTFIX: ${{ vars.FOD_APP_NAME_POSTFIX }}
           DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
           OVERRIDE_FOD_APP_NAME: ${{ format('{0}="{1} {2}"', 'FOD_APP_NAME', env.DEFAULT_APP_NAME, vars.FOD_APP_NAME_POSTFIX) }}
         id: set_fod_app_name
