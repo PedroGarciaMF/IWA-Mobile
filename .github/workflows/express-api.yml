@@ -132,8 +132,8 @@ jobs:
       - name: Show Outputs
         shell: bash
         run: |
-          echo ${fod-app-name}
-          echo ${fod-releae-name}
+          echo "fod-app-name = ${fod-app-name}"
+          echo "fod-release-name = ${fod-release-name}"
         env:
           fod-app-name: ${{ steps.fod-app-and-release-name.outputs.fod-app-name }}
           fod-release-name: ${{ steps.fod-app-and-release-name.outputs.fod-release-name }}

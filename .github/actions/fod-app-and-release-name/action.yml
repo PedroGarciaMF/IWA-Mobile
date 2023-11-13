@@ -13,7 +13,7 @@ inputs:
     required: false
     default: ${{ github.action_ref }}
     description: "Default FoD Release Name"
-  app-name-postix:
+  app-name-postfix:
     required: false
     description: "Additional string to append to App Name to make it unique for a user"
     default: ""
@@ -27,6 +27,17 @@ outputs:
 runs:
   using: "composite"
   steps:
+    # TODO: do we need the following?
+    # Checkout the code
+    - name: Checkout
+      uses: actions/checkout@v3.3.0
+      with:
+        # Fetch at least the immediate parents so that if this is a pull request then we can checkout the head.
+        fetch-depth: 2
+    # If this run was triggered by a pull request event, then checkout the head of the pull request instead of the merge commit.
+    - run: git checkout HEAD^2
+      shell: bash
+      if: ${{ github.event_name == 'pull_request' }}
     # set the FOD_APP_NAME environment variable to be used throughout the workflow
     - name: Set FoD app name
       working-directory: ${{ inputs.working-directory }}
