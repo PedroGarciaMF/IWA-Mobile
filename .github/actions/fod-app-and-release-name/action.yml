@@ -21,6 +21,8 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Check Out Source Code
+      uses: actions/checkout@v3.3.0
     - name: Get FoD App Name
       id: fod-app-name
       shell: bash
@@ -33,7 +35,7 @@ runs:
           echo "$OVERRIDE_APP_NAME" >> $GITHUB_OUTPUT
         fi
       env:
-        APP_NAME_POSTFIX: ${{ inputs.app-name-postfix }}
+        APP_NAME_POSTFIX: ${{ inputs.app_name_postfix }}
         DEFAULT_APP_NAME: ${{ format('{0}={1}', 'app_name', inputs.default_fod_app_name) }}
         OVERRIDE_APP_NAME: ${{ format('{0}={1}_{2}', 'app_name', inputs.default_fod_app_name, inputs.app_name_postfix) }}
     - name: Get FoD Release Name
