@@ -16,11 +16,13 @@ inputs:
     required: true
     description: "FoD API Client Secret"
   fod-app-name:
-    required: true
+    required: false
     description: "FoD Application Name"
+    default: ${{ github.action_repository }}
   fod-release-name:
-    required: true
+    required: false
     description: "FoD Release Name"
+    default: ${{ github.action_ref }}
 runs:
   using: "composite"
   steps:

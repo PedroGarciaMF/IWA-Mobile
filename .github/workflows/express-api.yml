@@ -128,15 +128,15 @@ jobs:
           working-directory: ${{ env.BASE_DIR }}
           default-fod-app-name: ${{ env.DEFAULT_APP_NAME }}
           app-name-postfix: ${{ vars.FOD_APP_NAME_POSTFIX }}
-        id: fod-app-and-release-name
+        id: fod-app-rel-name
       - name: Show Outputs
         shell: bash
         run: |
-          echo "fod-app-name = ${fod-app-name}"
-          echo "fod-release-name = ${fod-release-name}"
+          echo FOD_APP_NAME = ${FOD_APP_NAME}
+          echo FOD_RELEASE_NAME = ${FOD_RELEASE_NAME}
         env:
-          fod-app-name: ${{ steps.fod-app-and-release-name.outputs.fod-app-name }}
-          fod-release-name: ${{ steps.fod-app-and-release-name.outputs.fod-release-name }}
+          FOD_APP_NAME: ${{ steps.fod-app-rel-name.outputs.fod-app-name }}
+          FOD_RELEASE_NAME: ${{ steps.fod-app-rel-name.outputs.fod-release-name }}
       - name: Node FoD SAST scan
         uses: ./.github/actions/node-fod-sast-scan
         with:
