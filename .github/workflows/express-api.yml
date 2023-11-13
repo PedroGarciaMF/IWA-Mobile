@@ -85,43 +85,6 @@ jobs:
       # If this run was triggered by a pull request event, then checkout the head of the pull request instead of the merge commit.
       - run: git checkout HEAD^2
         if: ${{ github.event_name == 'pull_request' }}
-
-      # set the FOD_APP_NAME environment variable to be used throughout the workflow
-      #- name: Set FoD app name
-      #  working-directory: ${{ env.BASE_DIR }}
-      #  shell: bash
-      #  run: |
-      #    if [[ -z "$APP_NAME_POSTFIX" ]]; then
-      #      echo "::debug::Setting FOD_APP_NAME environment variable to default: '$DEFAULT_APP_NAME'"
-      #      echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
-      #    else
-      #      echo "::debug::Setting FOD_APP_NAME to override: '$OVERRIDE_FOD_APP_NAME'"
-      #      echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
-      #    fi
-      #  env:
-      #    APP_NAME_POSTFIX: ${{ vars.FOD_APP_NAME_POSTFIX }}
-      #    DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
-      #    OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1} {2}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME, vars.FOD_APP_NAME_POSTFIX) }}
-      #  id: set_fod_app_name
-
-      # Get the branch name or pr number
-      #- name: Extract branch name
-      #  working-directory: ${{ env.BASE_DIR }}
-      #  shell: bash
-      #  run: |
-      #    if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
-      #      BRANCH_NAME="$(echo ${GITHUB_REF#refs/pull/})"
-      #      PR_NUMBER="$(echo ${BRANCH_NAME%/merge})"
-      #      BRANCH_NAME="[PR]${SOURCE_BRANCH}#${PR_NUMBER}"
-      #    else
-      #      BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
-      #    fi
-      #    echo "::debug::branch=${BRANCH_NAME}"
-      #    echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-      #  env:
-      #    SOURCE_BRANCH: ${{ github.head_ref }}
-      #  id: extract_branch
-
       - name: FoD App and Release Name
         id: fod-app-and-rel-name
         uses: ./.github/actions/fod-app-and-release-name
@@ -129,6 +92,16 @@ jobs:
           default_fod_app_name: ${{ env.DEFAULT_APP_NAME }}
           default_fod_release_name: 'main'
           app_name_postfix: ${{ vars.FOD_APP_NAME_POSTFIX }}
+      - name: Node FoD SAST scan
+        id: node-fod-sast-scan
+        uses: ./.github/actions/node-fod-sast-scan
+        with:
+          working_directory: ${{ env.BASE_DIR }}
+          fod_api_uri: ${{ vars.FOD_API_URI }}
+          fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
+          fod_client_secret: ${{ secrets.FOD_CLIENT_SECRET }}
+          fod_app_name: ${{ steps.fod-app-and-rel-name.outputs.app_name }}
+          fod_release_name: ${{ steps.fod-app-and-rel-name.outputs.release_name }}
       - name: Outputs Summary
         shell: bash
         run: |
@@ -137,19 +110,11 @@ jobs:
           echo "| ---------------- | ----------- |" >> $GITHUB_STEP_SUMMARY
           echo "| fod_app_name     | $APP_NAME   |" >> $GITHUB_STEP_SUMMARY
           echo "| fod_release_name | $REL_NAME   |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod_scan_id      | $SCAN_ID   |" >> $GITHUB_STEP_SUMMARY
         env:
           APP_NAME: ${{ steps.fod-app-and-rel-name.outputs.app_name }}
           REL_NAME: ${{ steps.fod-app-and-rel-name.outputs.release_name }}
-
-      - name: Node FoD SAST scan
-        uses: ./.github/actions/node-fod-sast-scan
-        with:
-          working-directory: ${{ env.BASE_DIR }}
-          fod-api-uri: ${{ vars.FOD_API_URI }}
-          fod-client-id: ${{ secrets.FOD_CLIENT_ID }}
-          fod-client-secret: ${{ secrets.FOD_CLIENT_SECRET }}
-          fod-app-name: ${{ steps.fod-app-and-rel-name.outputs.app_name }}
-          fod-release-name: ${{ steps.fod-app-and-rel-name.outputs.release_name }}
+          SCAN_ID:  ${{ steps.node-fod-sast-scan.outputs.scan_id }}
 
   FoD-DAST-Scan:
     runs-on: ubuntu-latest
@@ -209,47 +174,46 @@ jobs:
         uses: actions/checkout@v3.3.0
 
       # set the FOD_APP_NAME environment variable to be used throughout the workflow
-      - name: Set FoD app name
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: |
-          if [[ -z "$APP_NAME_OVERRIDE" ]]; then
-            echo "::debug::Setting FOD_APP_NAME environment variable to default: '$DEFAULT_APP_NAME'"
-            echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
-          else
-            echo "::debug::Setting FOD_APP_NAME to override: '$DEFAULT_APP_NAME $APP_NAME_OVERRIDE'"
-            echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
-          fi
-        env:
-          APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
-          DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
-          OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', 'FOD_APP_NAME', env.APP_NAME_OVERRIDE) }}
-        id: set_fod_app_name
+      #- name: Set FoD app name
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: |
+      #    if [[ -z "$APP_NAME_OVERRIDE" ]]; then
+      #      echo "::debug::Setting FOD_APP_NAME environment variable to default: '$DEFAULT_APP_NAME'"
+      #      echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_ENV
+      #    else
+      #      echo "::debug::Setting FOD_APP_NAME to override: '$DEFAULT_APP_NAME $APP_NAME_OVERRIDE'"
+      #      echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_ENV
+      #    fi
+      #  env:
+      #    APP_NAME_OVERRIDE: ${{ vars.FOD_APP_NAME_POSTFIX }}
+      #    DEFAULT_FOD_APP_NAME:  ${{ format('{0}={1}', 'FOD_APP_NAME', env.DEFAULT_APP_NAME) }}
+      #    OVERRIDE_FOD_APP_NAME: ${{ format('{0}={1}', 'FOD_APP_NAME', env.APP_NAME_OVERRIDE) }}
+      #  id: set_fod_app_name
 
       # Get the branch name or pr number
-      - name: Extract branch name
-        working-directory: ${{ env.BASE_DIR }}
-        shell: bash
-        run: |
-          if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
-            BRANCH_NAME="$(echo ${GITHUB_REF#refs/pull/})"
-            PR_NUMBER="$(echo ${BRANCH_NAME%/merge})"
-            BRANCH_NAME="[PR]${SOURCE_BRANCH}#${PR_NUMBER}"
-          else
-            BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
-          fi
-          echo "::debug::branch=${BRANCH_NAME}"         
-          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-        env:
-          SOURCE_BRANCH: ${{ github.head_ref }}
-        id: extract_branch
+      #- name: Extract branch name
+      #  working-directory: ${{ env.BASE_DIR }}
+      #  shell: bash
+      #  run: |
+      #    if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
+      #      BRANCH_NAME="$(echo ${GITHUB_REF#refs/pull/})"
+      #      PR_NUMBER="$(echo ${BRANCH_NAME%/merge})"
+      #      BRANCH_NAME="[PR]${SOURCE_BRANCH}#${PR_NUMBER}"
+      #    else
+      #      BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
+      #    fi
+      #    echo "::debug::branch=${BRANCH_NAME}"
+      #    echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+      #  env:
+      #    SOURCE_BRANCH: ${{ github.head_ref }}
+      #  id: extract_branch
 
       - name: Verify FoD Security Policy
         uses: ./.github/actions/verify-fod-security-policy
         with:
-          working-directory: ${{ env.BASE_DIR }}
-          fod-api-uri: ${{ vars.FOD_API_URI }}
-          fod-client-id: ${{ secrets.FOD_CLIENT_ID }}
-          fod-client-secret: ${{ secrets.FOD_CLIENT_SECRET }}
-          fod-app-name: ${{ env.FOD_APP_NAME }}
-          fod-release-name: ${{ steps.extract_branch.outputs.branch }}
+          fod_api_uri: ${{ vars.FOD_API_URI }}
+          fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
+          fod_client_secret: ${{ secrets.FOD_CLIENT_SECRET }}
+          fod_app_name: ${{ steps.fod-app-and-rel-name.outputs.app_name }}
+          fod_release_name: ${{ steps.fod-app-and-rel-name.outputs.release_name }}
