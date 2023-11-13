@@ -53,4 +53,3 @@ runs:
         echo "release_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
       env:
         SOURCE_BRANCH: ${{ github.head_ref }}
-
