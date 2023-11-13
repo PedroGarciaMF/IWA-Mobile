@@ -12,10 +12,10 @@ inputs:
     description: "Additional string to append to App Name to make it unique for a user"
     default: ""
 outputs:
-  fod_app_name:
+  app_name:
     description: "FoD Application Name"
     value: ${{ steps.fod-app-name.outputs.app_name }}
-  fod_release_name:
+  release_name:
     description: "FoD Release Name"
     value: ${{ steps.fod-release-name.outputs.release_name }}
 runs:
