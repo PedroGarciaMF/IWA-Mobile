@@ -57,11 +57,12 @@ runs:
       shell: bash
       run: |
         fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="Critical:\t{critical}\nHigh:\t\t{high}\nMedium:\t\t{medium}\nLow:\t\t{low}" --session github-actions
-        echo "### FoD Scan - Issue Summary" >> $GITHUB_STEP_SUMMARY
+        echo "### FoD Issue Summary" >> $GITHUB_STEP_SUMMARY
         echo "| Critical | High | Medium | Low |" >> $GITHUB_STEP_SUMMARY
         echo "| -------- | ---- | ------ | --- |" >> $GITHUB_STEP_SUMMARY
-        echo (fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="|{critical}|{high}|{medium}|{low}" --session github-actions) >> $GITHUB_STEP_SUMMARY
-        if [ $(fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="{isPassed}" --session github-actions) = 'true' ]; then echo "Security policy: passed" >> $GITHUB_STEP_SUMMARY; else echo "Security policy: failed" >> $GITHUB_STEP_SUMMARY; fi
+        ISSUES=$(fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="|{critical}|{high}|{medium}|{low}" --session github-actions)
+        echo "${ISSUES}" >> $GITHUB_STEP_SUMMARY
+        #if [ $(fcli fod release get "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" -o expr="{isPassed}" --session github-actions) = 'true' ]; then echo "Security policy: passed" >> $GITHUB_STEP_SUMMARY; else echo "Security policy: failed" >> $GITHUB_STEP_SUMMARY; fi
         # TODO: add to summary output
       env:
         FOD_APP_NAME: ${{ inputs.fod_app_name }}
