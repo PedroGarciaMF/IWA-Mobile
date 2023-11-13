@@ -1,46 +1,41 @@
 name: "FoD App and Release Name"
 description: "Set the Fortify on Demand App and Release Name based on branch/PR and overrides"
 inputs:
-  working-directory:
-    required: false
-    description: "Relative directory (from root of repository) from where to run commands"
-    default: "."
-  default-fod-app-name:
+  default_fod_app_name:
     required: false
     default: ${{ github.action_repository }}
     description: "Default FoD Application Name"
-  defaut-fod-release-name:
+  default_fod_release_name:
     required: false
     default: ${{ github.action_ref }}
     description: "Default FoD Release Name"
-  app-name-postfix:
+  app_name_postfix:
     required: false
     description: "Additional string to append to App Name to make it unique for a user"
     default: ""
 outputs:
-  fod-app-name:
+  fod_app_name:
     description: "FoD Application Name"
-    value: ${{ steps.set_fod_app_name.outputs.appname }}
-  fod-release-name:
+    value: ${{ steps.fod_app_name.outputs.app_name }}
+  fod_release_name:
     description: "FoD Release Name"
-    value: ${{ steps.extract_branch.outputs.branch }}
+    value: ${{ steps.fod_release_name.outputs.release_name }}
 runs:
   using: "composite"
   steps:
     # TODO: do we need the following?
     # Checkout the code
-    - name: Checkout
-      uses: actions/checkout@v3.3.0
-      with:
-        # Fetch at least the immediate parents so that if this is a pull request then we can checkout the head.
-        fetch-depth: 2
-    # If this run was triggered by a pull request event, then checkout the head of the pull request instead of the merge commit.
-    - run: git checkout HEAD^2
-      shell: bash
-      if: ${{ github.event_name == 'pull_request' }}
-    # set the FOD_APP_NAME environment variable to be used throughout the workflow
-    - name: Set FoD app name
-      working-directory: ${{ inputs.working-directory }}
+    #- name: Checkout
+    #  uses: actions/checkout@v3.3.0
+    #  with:
+    #    # Fetch at least the immediate parents so that if this is a pull request then we can checkout the head.
+    #    fetch-depth: 2
+    ## If this run was triggered by a pull request event, then checkout the head of the pull request instead of the merge commit.
+    #- run: git checkout HEAD^2
+    #  shell: bash
+    #  if: ${{ github.event_name == 'pull_request' }}
+    - name: Get FoD App Name
+      id: fod_app_name
       shell: bash
       run: |
         if [[ -z "$APP_NAME_POSTFIX" ]]; then
@@ -52,12 +47,10 @@ runs:
         fi
       env:
         APP_NAME_POSTFIX: ${{ inputs.app-name-postfix }}
-        DEFAULT_APP_NAME: ${{ format('{0}={1}', 'appname', inputs.default-fod-app-name) }}
-        OVERRIDE_APP_NAME: ${{ format('{0}={1} {2}', 'appname', inputs.default-fod-app-name, inputs.app-name-postfix) }}
-        id: set_fod_app_name
-    # Get the branch name or pr number
-    - name: Extract branch name
-      working-directory: ${{ inputs.working-directory }}
+        DEFAULT_APP_NAME: ${{ format('{0}={1}', 'app_name', inputs.default_fod_app_name) }}
+        OVERRIDE_APP_NAME: ${{ format('{0}={1} {2}', 'app_name', inputs.default_fod_app_name, inputs.app_name_postfix) }}
+    - name: Get FoD Release Name
+      id: fod_release_name
       shell: bash
       run: |
         if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
@@ -71,18 +64,16 @@ runs:
         echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
       env:
         SOURCE_BRANCH: ${{ github.head_ref }}
-      id: extract_branch
-    - name: Summary
-      working-directory: ${{ inputs.working-directory }}
+    - name: Outputs Summary
       shell: bash
       run: |
-          echo "### Workflow output variables" >> $GITHUB_STEP_SUMMARY
+          echo "### FoD App and Release Name - output variables" >> $GITHUB_STEP_SUMMARY
           echo "| Variable         | Value       |" >> $GITHUB_STEP_SUMMARY
           echo "| ---------------- | ----------- |" >> $GITHUB_STEP_SUMMARY
-          echo "| fod-app-name     | $APP_NAME   |" >> $GITHUB_STEP_SUMMARY
-          echo "| fod-release-name | $REL_NAME   |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod_app_name     | $APP_NAME   |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod_release_name | $REL_NAME   |" >> $GITHUB_STEP_SUMMARY
       env:
-        APP_NAME: ${{ steps.set_fod_app_name.outputs.appname }}
-        REL_NAME: ${{ steps.extract_branch.outputs.branch }}
+        APP_NAME: ${{ steps.fod_app_name.outputs.app_name }}
+        REL_NAME: ${{ steps.fod_release_name.outputs.release_name }}
 
 
