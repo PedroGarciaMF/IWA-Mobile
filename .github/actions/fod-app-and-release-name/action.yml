@@ -45,10 +45,10 @@ runs:
       run: |
         if [[ -z "$APP_NAME_POSTFIX" ]]; then
           echo "::debug::Setting 'fod-app-name' output variable to default: '$DEFAULT_APP_NAME'"
-          echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_OUTPUT
+          echo "$DEFAULT_APP_NAME" >> $GITHUB_OUTPUT
         else
           echo "::debug::Setting 'fod-app-name' output variable to: '$OVERRIDE_APP_NAME'"
-          echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_OUTPUT
+          echo "$OVERRIDE_APP_NAME" >> $GITHUB_OUTPUT
         fi
       env:
         APP_NAME_POSTFIX: ${{ inputs.app-name-postfix }}
