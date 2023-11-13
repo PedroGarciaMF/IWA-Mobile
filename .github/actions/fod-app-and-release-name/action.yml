@@ -20,7 +20,7 @@ inputs:
 outputs:
   fod-app-name:
     description: "FoD Application Name"
-    value: ${{ steps.set_fod_app_name.outputs.fod-app-name }}
+    value: ${{ steps.set_fod_app_name.outputs.appname }}
   fod-release-name:
     description: "FoD Release Name"
     value: ${{ steps.extract_branch.outputs.branch }}
@@ -44,16 +44,16 @@ runs:
       shell: bash
       run: |
         if [[ -z "$APP_NAME_POSTFIX" ]]; then
-          echo "::debug::Setting 'fod-app-name' output variable to default: '$DEFAULT_APP_NAME'"
+          echo "::debug::Setting: '$DEFAULT_APP_NAME'"
           echo "$DEFAULT_APP_NAME" >> $GITHUB_OUTPUT
         else
-          echo "::debug::Setting 'fod-app-name' output variable to: '$OVERRIDE_APP_NAME'"
+          echo "::debug::Setting: '$OVERRIDE_APP_NAME'"
           echo "$OVERRIDE_APP_NAME" >> $GITHUB_OUTPUT
         fi
       env:
         APP_NAME_POSTFIX: ${{ inputs.app-name-postfix }}
-        DEFAULT_APP_NAME: ${{ format('{0}={1}', 'fod-app-name', inputs.default-fod-app-name) }}
-        OVERRIDE_APP_NAME: ${{ format('{0}={1} {2}', 'fod-app-name', inputs.default-fod-app-name, inputs.app-name-postfix) }}
+        DEFAULT_APP_NAME: ${{ format('{0}={1}', 'appname', inputs.default-fod-app-name) }}
+        OVERRIDE_APP_NAME: ${{ format('{0}={1} {2}', 'appname', inputs.default-fod-app-name, inputs.app-name-postfix) }}
         id: set_fod_app_name
     # Get the branch name or pr number
     - name: Extract branch name
