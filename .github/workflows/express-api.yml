@@ -123,20 +123,24 @@ jobs:
       #  id: extract_branch
 
       - name: FoD App and Release Name
+        id: fod-app-and-rel-name
         uses: ./.github/actions/fod-app-and-release-name
         with:
-          working-directory: ${{ env.BASE_DIR }}
-          default-fod-app-name: ${{ env.DEFAULT_APP_NAME }}
-          app-name-postfix: ${{ vars.FOD_APP_NAME_POSTFIX }}
-        id: fod-app-rel-name
-      - name: Show Outputs
+          default_fod_app_name: ${{ env.DEFAULT_APP_NAME }}
+          default_fod_release_name: 'main'
+          app_name_postfix: ${{ vars.FOD_APP_NAME_POSTFIX }}
+      - name: Outputs Summary
         shell: bash
         run: |
-          echo FOD_APP_NAME = ${FOD_APP_NAME}
-          echo FOD_RELEASE_NAME = ${FOD_RELEASE_NAME}
+          echo "### FoD - output variables" >> $GITHUB_STEP_SUMMARY
+          echo "| Variable         | Value       |" >> $GITHUB_STEP_SUMMARY
+          echo "| ---------------- | ----------- |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod_app_name     | $APP_NAME   |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod_release_name | $REL_NAME   |" >> $GITHUB_STEP_SUMMARY
         env:
-          FOD_APP_NAME: ${{ steps.fod-app-rel-name.outputs.fod-app-name }}
-          FOD_RELEASE_NAME: ${{ steps.fod-app-rel-name.outputs.fod-release-name }}
+          APP_NAME: ${{ steps.fod-app-and-rel-name.outputs.app_name }}
+          REL_NAME: ${{ steps.fod-app-and-rel-name.outputs.release_name }}
+
       - name: Node FoD SAST scan
         uses: ./.github/actions/node-fod-sast-scan
         with:
@@ -144,8 +148,8 @@ jobs:
           fod-api-uri: ${{ vars.FOD_API_URI }}
           fod-client-id: ${{ secrets.FOD_CLIENT_ID }}
           fod-client-secret: ${{ secrets.FOD_CLIENT_SECRET }}
-          fod-app-name: ${{ steps.fod-app-and-release-name.outputs.fod-app-name }}
-          fod-release-name: ${{ steps.fod-app-and-release-name.outputs.fod-release-name }}
+          fod-app-name: ${{ steps.fod-app-and-rel-name.outputs.app_name }}
+          fod-release-name: ${{ steps.fod-app-and-rel-name.outputs.release_name }}
 
   FoD-DAST-Scan:
     runs-on: ubuntu-latest
