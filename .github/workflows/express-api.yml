@@ -47,7 +47,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v3.3.0
         with:
@@ -73,7 +72,6 @@ jobs:
     if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDSASTScan == 'true') }}
     needs: [ Build-And-Test ]
     steps:
-      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v3.3.0
         with:
@@ -118,7 +116,7 @@ jobs:
     if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDDASTScan == 'true') }}
     needs: [ Build-And-Test, FoD-SAST-Scan ]
     steps:
-      - name: Check Out Source Code
+      - name: Checkout
         uses: actions/checkout@v3.3.0
       - name: FoD App and Release Name
         id: fod-app-and-rel-name
@@ -135,6 +133,8 @@ jobs:
     if: ${{ always() }}
     needs: [ FoD-SAST-Scan, FoD-DAST-Scan ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
       - name: FoD App and Release Name
         id: fod-app-and-rel-name
         uses: ./.github/actions/fod-app-and-release-name

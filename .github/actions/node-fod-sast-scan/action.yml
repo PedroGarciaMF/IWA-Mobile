@@ -44,7 +44,7 @@ runs:
       with:
         node-version: 16
     - name: Install Dependencies
-      working_directory: ${{ inputs.working_directory }}
+      working_directory: ${{ env.BASE_DIR }}
       shell: bash
       run: |
         npm install --only=prod
@@ -61,7 +61,7 @@ runs:
         bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
-      working_directory: ${{ inputs.working_directory }}
+      working_directory: ${{ env.BASE_DIR }}
       shell: bash
       run: |
         fcli --version
@@ -72,7 +72,7 @@ runs:
         FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
     # Create a new Fortify on Demand release for GitHub branch
     - name: Create FoD release
-      working_directory: ${{ inputs.working_directory }}
+      working_directory: ${{ env.BASE_DIR }}
       shell: bash
       run: |
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
@@ -90,14 +90,14 @@ runs:
     - name: Package Code + Dependencies
       uses: TheDoctor0/zip-release@0.7.1
       with:
-        directory: ${{ inputs.working_directory }}
+        directory: ${{ env.BASE_DIR }}
         type: 'zip'
         filename: 'package.zip'
         exclusions: '*.git* config logs'
     # Start Fortify on Demand SAST scan and wait until results complete.
     - name: Perform FoD SAST scan
       id: fod-sast-scan
-      working_directory: ${{ inputs.working_directory }}
+      working_directory: ${{ env.BASE_DIR }}
       shell: bash
       run: |
         fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
