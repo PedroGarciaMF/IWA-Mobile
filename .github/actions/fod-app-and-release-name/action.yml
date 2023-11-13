@@ -72,4 +72,17 @@ runs:
       env:
         SOURCE_BRANCH: ${{ github.head_ref }}
       id: extract_branch
+    - name: Summary
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: |
+          echo "### Workflow output variables" >> $GITHUB_STEP_SUMMARY
+          echo "| Variable         | Value       |" >> $GITHUB_STEP_SUMMARY
+          echo "| ---------------- | ----------- |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod-app-name     | $APP_NAME   |" >> $GITHUB_STEP_SUMMARY
+          echo "| fod-release-name | $REL_NAME   |" >> $GITHUB_STEP_SUMMARY
+      env:
+        APP_NAME: ${{ steps.set_fod_app_name.outputs.appname }}
+        REL_NAME: ${{ steps.extract_branch.outputs.branch }}
+
 
