@@ -1,5 +1,5 @@
-name: "Node FoD SAST Scan"
-description: "Runs a Fortify on Demand Scan of a Node JS application"
+name: "FoD MAST Scan"
+description: "Runs a Fortify on Demand Scan of a Mobile application"
 inputs:
   working-directory:
     required: false
@@ -81,37 +81,34 @@ runs:
         FOD_APP_NAME: ${{ inputs.fod-app-name }}
         FOD_RELEASE_NAME: ${{ inputs.fod-release-name }}
         FOD_PARENT_RELEASE_NAME: ${{ inputs.fod-parent-release-name }}
-    # Since this is a React Native Javascript project we can simply
-    # Zip up source rather than use "scancentral package" command
-    - name: Package Code + Dependencies
-      uses: TheDoctor0/zip-release@0.7.1
-      with:
-        directory: ${{ inputs.working-directory }}
-        type: 'zip'
-        filename: 'package.zip'
-        exclusions: '*.git* config logs'
-    # Start Fortify on Demand SAST scan and wait until results complete.
+    # Build the Android APK
+    - name: Build Android Release
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: |
+        cd android && sh ./gradlew assembleRelease
+    # Start Fortify on Demand MAST scan and wait until results complete.
     - name: Perform SAST scan
       working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
-        fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
+        fcli fod mast-scan start --release "${FOD_RELEASE_NAME}" --framework Android --entitlement-frequency Subscription --assessment-type "Mobile Assessment" -f $APK_FILE --store curScan --session github-actions
         sleep 5
         fcli fod sast-scan wait-for ::curScan:: --session github-actions
-      id: perform_sast_scan
+      id: perform_mobile_scan
       env:
-        PACKAGE_FILE: "package.zip"
+        APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
         FOD_RELEASE_NAME: ${{ format('{0}:{1}', inputs.fod-app-name, inputs.fod-release-name) }}
         FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
     # Export FoD vulnerability data to GitHub
-    - name: Export FoD vulnerability data to GitHub
-      uses: fortify/github-action/fod-export@v1
-      env:
-        FOD_URL: "https://emea.fortify.com"
-        FOD_API_URI: ${{ inputs.fod-api-uri }}
-        FOD_CLIENT_ID: ${{ inputs.fod-client-id }}
-        FOD_CLIENT_SECRET: ${{ inputs.fod-client-secret }}
-        FOD_RELEASE: ${{ format('{0}:{1}', inputs.fod-app-name, inputs.fod-release-name) }}
+    #- name: Export FoD vulnerability data to GitHub
+    #  uses: fortify/github-action/fod-export@v1
+    #  env:
+    #    FOD_URL: "https://emea.fortify.com"
+    #    FOD_API_URI: ${{ inputs.fod-api-uri }}
+    #    FOD_CLIENT_ID: ${{ inputs.fod-client-id }}
+    #    FOD_CLIENT_SECRET: ${{ inputs.fod-client-secret }}
+    #    FOD_RELEASE: ${{ format('{0}:{1}', inputs.fod-app-name, inputs.fod-release-name) }}
     # Logout/Close Fortify on Demand fcli session
     - name: Logout fcli
       shell: bash

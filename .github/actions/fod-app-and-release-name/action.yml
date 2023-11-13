@@ -1,0 +1,64 @@
+name: "FoD App and Release Name"
+description: "Set the Fortify on Demand App and Release Name based on branch/PR and overrides"
+inputs:
+  working-directory:
+    required: false
+    description: "Relative directory (from root of repository) from where to run commands"
+    default: "."
+  default-fod-app-name:
+    required: false
+    default: ${{ github.action_repository }}
+    description: "Default FoD Application Name"
+  defaut-fod-release-name:
+    required: false
+    default: ${{ github.action_ref }}
+    description: "Default FoD Release Name"
+  app-name-postix:
+    required: false
+    description: "Additional string to append to App Name to make it unique for a user"
+    default: ""
+outputs:
+  fod-app-name:
+    description: "FoD Application Name"
+    value: ${{ steps.set_fod_app_name.outputs.fod-app-name }}
+  fod-release-name:
+    description: "FoD Release Name"
+    value: ${{ steps.extract_branch.outputs.branch }}
+runs:
+  using: "composite"
+  steps:
+    # set the FOD_APP_NAME environment variable to be used throughout the workflow
+    - name: Set FoD app name
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: |
+        if [[ -z "$APP_NAME_POSTFIX" ]]; then
+          echo "::debug::Setting 'fod-app-name' output variable to default: '$DEFAULT_APP_NAME'"
+          echo "$DEFAULT_FOD_APP_NAME" >> $GITHUB_OUTPUT
+        else
+          echo "::debug::Setting 'fod-app-name' output variable to: '$OVERRIDE_APP_NAME'"
+          echo "$OVERRIDE_FOD_APP_NAME" >> $GITHUB_OUTPUT
+        fi
+      env:
+        APP_NAME_POSTFIX: ${{ inputs.app-name-postfix }}
+        DEFAULT_APP_NAME: ${{ format('{0}={1}', 'fod-app-name', inputs.default-fod-app-name) }}
+        OVERRIDE_APP_NAME: ${{ format('{0}={1} {2}', 'fod-app-name', inputs.default-fod-app-name, inputs.app-name-postfix) }}
+        id: set_fod_app_name
+    # Get the branch name or pr number
+    - name: Extract branch name
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: |
+        if [[ $GITHUB_REF == *"refs/pull/"* ]]; then
+          BRANCH_NAME="$(echo ${GITHUB_REF#refs/pull/})"
+          PR_NUMBER="$(echo ${BRANCH_NAME%/merge})"
+          BRANCH_NAME="[PR]${SOURCE_BRANCH}#${PR_NUMBER}"
+        else
+          BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/})"
+        fi
+        echo "::debug::branch=${BRANCH_NAME}"         
+        echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+      env:
+        SOURCE_BRANCH: ${{ github.head_ref }}
+      id: extract_branch
+
