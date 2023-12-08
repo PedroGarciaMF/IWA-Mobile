@@ -17,10 +17,6 @@ inputs:
   fod_release_name:
     required: true
     description: "FoD Release Name"
-  fod_parent_release_name:
-    required: false
-    description: "FoD Parent Release Name"
-    default: "main"
 runs:
   using: "composite"
   steps:

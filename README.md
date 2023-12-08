@@ -31,42 +31,21 @@ your own GitHub account. The process of "forking" is described in detail in the 
 
 ## Setting up the Development Environment
 
-For this application to run you will require the following to be installed:
+This application uses the API from [https://github.com/fortify-presales/IWA-API](https://github.com/fortify-presales/IWA-API).
+Please follow the instructions for this application and how to get it running.
 
-- [MongoDB](https://www.mongodb.com/) Community Edition
+For this application to run you will also require the following to be installed:
+
 - [NodeJS](https://nodejs.org/) LTS version
 - [React Native](https://reactnative.dev/docs/environment-setup) CLI for your preferred operating system and target device/simulator.
 
 Clone the repository (preferably your fork from above) and then install all the required third-party packages using:
 
-Running the Application
------------------------
-
-**Populate MongoDB**
-
-```aidl
-cd 01-mongodb
-npm install
-npm run dev
-```
-
-**Start Express API**
-
-```aidl
-cd 02-express-api
-npm install
-npm run dev
-```
-
-The Express API should then be accessible at [http://localhost:3000](http://localhost:3000)
-
-**React Native Client - Android**
-
 Please read the instructions from [https://reactnative.dev/docs/environment-setup](https://reactnative.dev/docs/environment-setup)
 on how to start up the Metro Bundler and running the application first. Then in one terminal, run
 
 ```aidl
-cd 03-react-native-client
+cd src
 npm install
 npm run dev
 ```
@@ -114,14 +93,3 @@ adb -S YOUR_DEVICE_ID install "FULL_PATH_TO\android\app\build\outputs\apk\releas
 **iOS**
 
 TBD
-
-
-**Extra: Exposing Express API to the Internet**
-
-You can expose the local Node/Express API to the internet using [localtunnel](https://localtunnel.github.io/www/)
-using the following:
-
-```agsl
-npm install -g localtunnel
-lt --port 3000
-```
