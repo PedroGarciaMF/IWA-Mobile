@@ -94,7 +94,7 @@ runs:
       shell: bash
       run: |
         rm -f package.zip
-        zip package *.lock
+        zip package package*.json
     # Start Fortify on Demand OSS scan and wait until results complete.
     - name: Perform FoD OSS scan
       id: fod-oss-scan
