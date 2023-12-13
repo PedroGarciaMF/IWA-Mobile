@@ -1,10 +1,10 @@
 name: "FoD OSS Scan (via Debricked)"
 description: "Runs a Fortify on Demand OSS SCA scan of an npm application"
 inputs:
-  working_directory:
-    required: false
-    description: "Relative directory (from root of repository) from where to run commands"
-    default: "."
+#  working_directory:
+#    required: false
+#    description: "Relative directory (from root of repository) from where to run commands"
+#    default: "."
   fod_url:
     required: false
     description: "FoD API URI"
@@ -52,7 +52,7 @@ runs:
       with:
         node-version: 16
     - name: Install Dependencies
-      working-directory: ${{ inputs.working-directory }}
+      #working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         npm install --only=prod
@@ -69,7 +69,7 @@ runs:
         bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
-      working-directory: ${{ env.BASE_DIR }}
+      #working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli --version
@@ -81,7 +81,7 @@ runs:
     # Create a new Fortify on Demand release for GitHub branch
     - name: Create FoD release
       id: create-release
-      working-directory: ${{ inputs.working-directory }}
+      #working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
@@ -102,7 +102,7 @@ runs:
     # Start Fortify on Demand OSS scan and wait until results complete.
     - name: Perform FoD OSS scan
       id: fod-oss-scan
-      working-directory: ${{ inputs.working-directory }}
+      #working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli fod oss-scan start --release "${FOD_RELEASE_NAME}" -f $PACKAGE_FILE --store curScan --session github-actions

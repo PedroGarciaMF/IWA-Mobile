@@ -57,6 +57,9 @@ jobs:
   Build-And-Test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -71,12 +74,14 @@ jobs:
         with:
           node-version: 16
       - name: Install Dependencies
-        working-directory: ${{ env.SRC_DIR }}
         run: npm install --only=prod
 
   FoD-OSS-Scan:
     runs-on: ubuntu-latest
     if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDOSSScan == 'true') }}
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -97,7 +102,7 @@ jobs:
         id: fod-oss-scan
         uses: ./.github/actions/fod-oss-scan
         with:
-          working_directory: ${{ env.SRC_DIR }}
+          #working_directory: ${{ env.SRC_DIR }}
           fod_url: ${{ vars.FOD_URL }}
           fod_api_url: ${{ vars.FOD_API_URL }}
           fod_client_id: ${{ secrets.FOD_CLIENT_ID }}
@@ -109,6 +114,9 @@ jobs:
   Quality-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     needs: [ Build-And-Test ]
     steps:
       - uses: actions/checkout@v3.3.0
@@ -118,6 +126,9 @@ jobs:
   FoD-SAST-Scan:
     runs-on: ubuntu-latest
     if: ${{ (github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event.inputs.runFoDSASTScan == 'true') }}
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -150,6 +161,9 @@ jobs:
   FoD-MAST-Scan:
     runs-on: ubuntu-latest
     if: ${{ (github.event.inputs.runFoDMASTScan == 'true') }}
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -175,6 +189,9 @@ jobs:
   Security-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     needs: [ FoD-OSS-Scan,FoD-SAST-Scan,FoD-MAST-Scan ]
     steps:
       - name: Checkout
@@ -198,6 +215,9 @@ jobs:
   Release-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
+    defaults:
+      run:
+        working-directory: ${{ env.SRC_DIR }}
     needs: [ Quality-Gate, Security-Gate ]
     steps:
       - name: Check Out Source Code
