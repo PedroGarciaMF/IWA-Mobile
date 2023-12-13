@@ -5,10 +5,6 @@ inputs:
     required: false
     description: "Relative directory (from root of repository) from where to run commands"
     default: "./src"
-  fod_url:
-    required: false
-    description: "FoD API URI"
-    default: "https://ams.fortify.com"
   fod_api_url:
     required: false
     description: "FoD API URI"
@@ -56,11 +52,8 @@ runs:
       shell: bash
       run: |
         pwd
-        echo $SRC_DIR
         npm install --only=prod
         npm install --package-lock-only
-      env:
-        SRC_DIR: ${{ inputs.working_directory }}
     # Install Fortify tools
     - name: Setup Fortify tools
       uses: fortify/github-action/setup@v1
