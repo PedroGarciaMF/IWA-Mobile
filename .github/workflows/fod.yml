@@ -102,7 +102,7 @@ jobs:
         id: fod-oss-scan
         uses: ./.github/actions/fod-oss-scan
         with:
-          #working_directory: ${{ env.SRC_DIR }}
+          working_directory: ${{ env.SRC_DIR }}
           fod_url: ${{ vars.FOD_URL }}
           fod_api_url: ${{ vars.FOD_API_URL }}
           fod_client_id: ${{ secrets.FOD_CLIENT_ID }}

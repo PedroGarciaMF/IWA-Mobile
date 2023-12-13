@@ -1,5 +1,5 @@
 name: "FoD OSS Scan (via Debricked)"
-description: "Runs a Fortify on Demand OSS SCA scan of an npm application"
+description: "Runs a Fortify on Demand OSS SCA scan of a Node application"
 inputs:
   working_directory:
     required: false
@@ -29,10 +29,10 @@ inputs:
     required: false
     description: "FoD Parent Release Name"
     default: "main"
-  npm_version:
+  node_version:
     required: false
-    description: "Version of Gradle to use"
-    default: "7.3"
+    description: "Version of node to use"
+    default: "16"
 outputs:
   fod_scan_id:
     description: "FoD Scan Id"
@@ -50,13 +50,17 @@ runs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: ${{ inputs.node_version }}
     - name: Install Dependencies
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
+        pwd
+        echo $SRC_DIR
         npm install --only=prod
         npm install --package-lock-only
+      env:
+        SRC_DIR: ${{ inputs.working_directory }}
     # Install Fortify tools
     - name: Setup Fortify tools
       uses: fortify/github-action/setup@v1
@@ -93,7 +97,7 @@ runs:
         FOD_PARENT_RELEASE_NAME: ${{ inputs.fod_parent_release_name }}
     # Create dependencies package with npm "lock" file
     - name: Create dependencies package
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         rm -f package.zip
@@ -101,7 +105,7 @@ runs:
     # Start Fortify on Demand OSS scan and wait until results complete.
     - name: Perform FoD OSS scan
       id: fod-oss-scan
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli fod oss-scan start --release "${FOD_RELEASE_NAME}" -f $PACKAGE_FILE --store curScan --session github-actions
