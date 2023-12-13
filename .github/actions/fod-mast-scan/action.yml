@@ -4,11 +4,11 @@ inputs:
   working-directory:
     required: false
     description: "Relative directory (from root of repository) from where to run commands"
-    default: "."
-  fod-api-uri:
+    default: "./src"
+  fod-api-url:
     required: false
     description: "FoD API URI"
-    default: "https://api.emea.fortify.com"
+    default: "https://ams.fortify.com"
   fod-client-id:
     required: true
     description: "FoD API Client Id"
@@ -25,6 +25,10 @@ inputs:
     required: false
     description: "FoD Parent Release Name"
     default: "main"
+  node_version:
+    required: false
+    description: "Version of node to use"
+    default: "16"
 runs:
   using: "composite"
   steps:
@@ -38,11 +42,12 @@ runs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: ${{ inputs.node_version }}
     - name: Install Dependencies
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
+        pwd
         npm install --only=prod
         npm install --package-lock-only
     # Install Fortify tools
@@ -57,18 +62,18 @@ runs:
         bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli --version
         fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
       env:
-        FOD_API_URI: ${{ inputs.fod-api-uri }}
+        FOD_API_URI: ${{ inputs.fod-api-url }}
         FOD_CLIENT_ID: ${{ inputs.fod-client-id }}
         FOD_CLIENT_SECRET: ${{ inputs.fod-client-secret }}
     # Create a new Fortify on Demand release for GitHub branch
     - name: Create FoD release
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
@@ -83,13 +88,13 @@ runs:
         FOD_PARENT_RELEASE_NAME: ${{ inputs.fod-parent-release-name }}
     # Build the Android APK
     - name: Build Android Release
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         cd android && sh ./gradlew assembleRelease
     # Start Fortify on Demand MAST scan and wait until results complete.
     - name: Perform MAST scan
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli fod mast-scan start --release "${FOD_RELEASE_NAME}" --framework Android --entitlement-frequency Subscription --assessment-type "Mobile Assessment" -f $APK_FILE --store curScan --session github-actions
