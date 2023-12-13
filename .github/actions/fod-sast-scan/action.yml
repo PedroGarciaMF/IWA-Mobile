@@ -4,7 +4,7 @@ inputs:
   working_directory:
     required: false
     description: "Relative directory (from root of repository) from where to run commands"
-    default: "."
+    default: "./src"
   fod_url:
     required: false
     description: "FoD API URI"
@@ -29,6 +29,10 @@ inputs:
     required: false
     description: "FoD Parent Release Name"
     default: "main"
+  node_version:
+    required: false
+    description: "Version of node to use"
+    default: "16"
 outputs:
   fod_scan_id:
     description: "FoD Scan Id"
@@ -46,11 +50,12 @@ runs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: ${{ inputs.node_version }}
     - name: Install Dependencies
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
+        pwd
         npm install --only=prod
         npm install --package-lock-only
     # Install Fortify tools
@@ -65,7 +70,7 @@ runs:
         bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli --version
@@ -77,7 +82,7 @@ runs:
     # Create a new Fortify on Demand release for GitHub branch
     - name: Create FoD release
       id: create-release
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
@@ -94,14 +99,14 @@ runs:
     - name: Package Code + Dependencies
       uses: TheDoctor0/zip-release@0.7.1
       with:
-        directory: ${{ inputs.working-directory }}
+        directory: ${{ inputs.working_directory }}
         type: 'zip'
         filename: 'package.zip'
         exclusions: '*.git* package*.json config logs __tests__ .bundle'
     # Start Fortify on Demand SAST scan and wait until results complete.
     - name: Perform FoD SAST scan
       id: fod-sast-scan
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
         fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
@@ -114,8 +119,8 @@ runs:
         FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
     # Export FoD vulnerability data to GitHub
     - name: Export FoD vulnerability data to GitHub
-      #uses: fortify/github-action/fod-export@v1
-      uses: kadraman/github-action/fod-export@fve-space-issues
+      uses: fortify/github-action/fod-export@v1
+      #uses: kadraman/github-action/fod-export@fve-space-issues
       env:
         FOD_URL: ${{ inputs.fod_url }}
         FOD_CLIENT_ID: ${{ inputs.fod_client_id }}

@@ -89,7 +89,7 @@ runs:
         FOD_RELEASE_NAME: ${{ inputs.fod_release_name }}
         FOD_PARENT_RELEASE_NAME: ${{ inputs.fod_parent_release_name }}
     # Create dependencies package with npm "lock" file
-    - name: Create dependencies package
+    - name: Package Dependencies
       working-directory: ${{ inputs.working_directory }}
       shell: bash
       run: |
