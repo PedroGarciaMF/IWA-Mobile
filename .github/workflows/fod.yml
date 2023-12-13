@@ -175,7 +175,7 @@ jobs:
   Security-Gate:
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [ FoD-OSS-Scan,FoD-SAST-Scan,FoD-DAST-Scan ]
+    needs: [ FoD-OSS-Scan,FoD-SAST-Scan,FoD-MAST-Scan ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
