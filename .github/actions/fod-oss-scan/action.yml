@@ -1,30 +1,42 @@
-name: "FoD MAST Scan"
-description: "Runs a Fortify on Demand Scan of a Mobile application"
+name: "FoD OSS Scan (via Debricked)"
+description: "Runs a Fortify on Demand OSS SCA scan of an npm application"
 inputs:
-  working-directory:
+  working_directory:
     required: false
     description: "Relative directory (from root of repository) from where to run commands"
     default: "."
-  fod-api-uri:
+  fod_url:
     required: false
     description: "FoD API URI"
-    default: "https://api.emea.fortify.com"
-  fod-client-id:
+    default: "https://ams.fortify.com"
+  fod_api_url:
+    required: false
+    description: "FoD API URI"
+    default: "https://api.ams.fortify.com"
+  fod_client_id:
     required: true
     description: "FoD API Client Id"
-  fod-client-secret:
+  fod_client_secret:
     required: true
     description: "FoD API Client Secret"
-  fod-app-name:
+  fod_app_name:
     required: true
     description: "FoD Application Name"
-  fod-release-name:
+  fod_release_name:
     required: true
     description: "FoD Release Name"
-  fod-parent-release-name:
+  fod_parent_release_name:
     required: false
     description: "FoD Parent Release Name"
     default: "main"
+  npm_version:
+    required: false
+    description: "Version of Gradle to use"
+    default: "7.3"
+outputs:
+  fod_scan_id:
+    description: "FoD Scan Id"
+    value: ${{ steps.fod-oss-scan.outputs.fod_scan_id }}
 runs:
   using: "composite"
   steps:
@@ -51,58 +63,57 @@ runs:
       with:
         export-path: true
         fcli: latest
-        sc-client: latest
+        sc-client: skip
         fod-uploader: skip
-        vuln-exporter: v2
+        vuln-exporter: latest
         bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
-      working-directory: ${{ inputs.working-directory }}
+      working-directory: ${{ env.BASE_DIR }}
       shell: bash
       run: |
         fcli --version
         fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
       env:
-        FOD_API_URI: ${{ inputs.fod-api-uri }}
-        FOD_CLIENT_ID: ${{ inputs.fod-client-id }}
-        FOD_CLIENT_SECRET: ${{ inputs.fod-client-secret }}
+        FOD_API_URI: ${{ inputs.fod_api_url }}
+        FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
+        FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
     # Create a new Fortify on Demand release for GitHub branch
     - name: Create FoD release
+      id: create-release
       working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
         echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
         RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-        echo "::debug::Created FOD_RELEASE_ID=${RELID}"
-        echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
-      id: create_fod_release
+        echo "::debug::Created/Using fod_release_id=${RELID}"
+        echo "release_id=${RELID}" >> $GITHUB_OUTPUT
       env:
-        FOD_APP_NAME: ${{ inputs.fod-app-name }}
-        FOD_RELEASE_NAME: ${{ inputs.fod-release-name }}
-        FOD_PARENT_RELEASE_NAME: ${{ inputs.fod-parent-release-name }}
-    # Build the Android APK
-    - name: Build Android Release
+        FOD_APP_NAME: ${{ inputs.fod_app_name }}
+        FOD_RELEASE_NAME: ${{ inputs.fod_release_name }}
+        FOD_PARENT_RELEASE_NAME: ${{ inputs.fod_parent_release_name }}
+    # Create dependencies package with npm "lock" file
+    - name: Create dependencies package
+      shell: bash
+      run: |
+        rm -f package.zip
+        zip package *.lock
+    # Start Fortify on Demand OSS scan and wait until results complete.
+    - name: Perform FoD OSS scan
+      id: fod-oss-scan
       working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
-        cd android && sh ./gradlew assembleRelease
-    # Start Fortify on Demand MAST scan and wait until results complete.
-    - name: Perform MAST scan
-      working-directory: ${{ inputs.working-directory }}
-      shell: bash
-      run: |
-        fcli fod mast-scan start --release "${FOD_RELEASE_NAME}" --framework Android --entitlement-frequency Subscription --assessment-type "Mobile Assessment" -f $APK_FILE --store curScan --session github-actions
-        sleep 5
-        fcli fod mast-scan wait-for ::curScan:: --session github-actions
-      id: perform_mobile_scan
+        fcli fod oss-scan start --release "${FOD_RELEASE_NAME}" -f $PACKAGE_FILE --store curScan --session github-actions
+        sleep 10
+        echo "fod_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
+        fcli fod oss-scan wait-for ::curScan:: --session github-actions
       env:
-        APK_FILE: "./android/app/build/outputs/apk/release/app-release.apk"
-        FOD_RELEASE_NAME: ${{ format('{0}:{1}', inputs.fod-app-name, inputs.fod-release-name) }}
-        FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+        PACKAGE_FILE: "package.zip"
+        FOD_RELEASE_NAME: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
     # Logout/Close Fortify on Demand fcli session
     - name: Logout fcli
       shell: bash
       run: |
-        fcli fod session logout --session github-actions        
-
+        fcli fod session logout --session github-actions

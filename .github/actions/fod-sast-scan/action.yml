@@ -1,14 +1,18 @@
-name: "Node FoD SAST Scan"
-description: "Runs a Fortify on Demand Scan of a Node JS application"
+name: "npm FoD SAST Scan"
+description: "Runs a Fortify on Demand Scan of an npm Node JS application"
 inputs:
   working_directory:
     required: false
     description: "Relative directory (from root of repository) from where to run commands"
     default: "."
-  fod_api_uri:
+  fod_url:
     required: false
     description: "FoD API URI"
-    default: "https://api.emea.fortify.com"
+    default: "https://ams.fortify.com"
+  fod_api_url:
+    required: false
+    description: "FoD API URI"
+    default: "https://api.ams.fortify.com"
   fod_client_id:
     required: true
     description: "FoD API Client Id"
@@ -28,7 +32,7 @@ inputs:
 outputs:
   fod_scan_id:
     description: "FoD Scan Id"
-    value: ${{ steps.fod-app-name.outputs.app_name }}
+    value: ${{ steps.fod-sast-scan.outputs.fod_scan_id }}
 runs:
   using: "composite"
   steps:
@@ -44,7 +48,7 @@ runs:
       with:
         node-version: 16
     - name: Install Dependencies
-      working-directory: ${{ env.BASE_DIR }}
+      working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         npm install --only=prod
@@ -57,30 +61,30 @@ runs:
         fcli: latest
         sc-client: latest
         fod-uploader: skip
-        vuln-exporter: v2
+        vuln-exporter: latest
         bugtracker-utility: skip
     # Login to Fortify on Demand fcli session
     - name: Login fcli
-      working-directory: ${{ env.BASE_DIR }}
+      working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli --version
         fcli fod session login --url $FOD_API_URI --client-id $FOD_CLIENT_ID --client-secret $FOD_CLIENT_SECRET --session github-actions
       env:
-        FOD_API_URI: ${{ inputs.fod_api_uri }}
+        FOD_API_URI: ${{ inputs.fod_api_url }}
         FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
         FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
     # Create a new Fortify on Demand release for GitHub branch
     - name: Create FoD release
-      working-directory: ${{ env.BASE_DIR }}
+      id: create-release
+      working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli fod release list --app "$FOD_APP_NAME" --session github-actions
         echo fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions
         RELID=$(fcli fod release create "${FOD_APP_NAME}:${FOD_RELEASE_NAME}" --description "Created automatically from GitHub" --copy-from "${FOD_APP_NAME}:${FOD_PARENT_RELEASE_NAME}" --status Development --skip-if-exists -o expr="{releaseId}" --session github-actions)
-        echo "::debug::Created FOD_RELEASE_ID=${RELID}"
-        echo "FOD_RELEASE_ID=${RELID}" >> $GITHUB_OUTPUT
-      id: create_fod_release
+        echo "::debug::Created/Using fod_release_id=${RELID}"
+        echo "release_id=${RELID}" >> $GITHUB_OUTPUT
       env:
         FOD_APP_NAME: ${{ inputs.fod_app_name }}
         FOD_RELEASE_NAME: ${{ inputs.fod_release_name }}
@@ -90,18 +94,18 @@ runs:
     - name: Package Code + Dependencies
       uses: TheDoctor0/zip-release@0.7.1
       with:
-        directory: ${{ env.BASE_DIR }}
+        directory: ${{ inputs.working-directory }}
         type: 'zip'
         filename: 'package.zip'
-        exclusions: '*.git* config logs'
+        exclusions: '*.git* package*.json config logs __tests__ .bundle'
     # Start Fortify on Demand SAST scan and wait until results complete.
     - name: Perform FoD SAST scan
       id: fod-sast-scan
-      working-directory: ${{ env.BASE_DIR }}
+      working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         fcli fod sast-scan start --release "${FOD_RELEASE_NAME}" --notes "${FOD_SCAN_NOTES}" -f $PACKAGE_FILE --store curScan --session github-actions
-        sleep 5
+        sleep 10
         echo "fod_scan_id=$(fcli util var get ::curScan::)" >> $GITHUB_OUTPUT
         fcli fod sast-scan wait-for ::curScan:: --session github-actions
       env:
@@ -110,16 +114,18 @@ runs:
         FOD_SCAN_NOTES: "Triggered by GitHub Actions (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
     # Export FoD vulnerability data to GitHub
     - name: Export FoD vulnerability data to GitHub
-      uses: fortify/github-action/fod-export@v1
+      #uses: fortify/github-action/fod-export@v1
+      uses: kadraman/github-action/fod-export@fve-space-issues
       env:
-        FOD_URL: "https://emea.fortify.com"
-        FOD_API_URI: ${{ inputs.fod_api_uri }}
+        FOD_URL: ${{ inputs.fod_url }}
         FOD_CLIENT_ID: ${{ inputs.fod_client_id }}
         FOD_CLIENT_SECRET: ${{ inputs.fod_client_secret }}
         FOD_RELEASE: ${{ format('{0}:{1}', inputs.fod_app_name, inputs.fod_release_name) }}
+        #FOD_RELEASE: ${{ steps.create-release.outputs.release_id }}
     # Logout/Close Fortify on Demand fcli session
     - name: Logout fcli
       shell: bash
       run: |
-        fcli fod session logout --session github-actions        
+        fcli fod session logout --session github-actions
+ 
 

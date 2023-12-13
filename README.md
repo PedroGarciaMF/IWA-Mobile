@@ -1,5 +1,4 @@
-[![Fortify Security Scan](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/express-api.yml/badge.svg)](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/express-api.yml)
-[![Fortify Security Scan](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/react-native-client.yml/badge.svg)](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/react-native-client.yml)
+[![Fortify Security Scan](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/fod.yml/badge.svg)](https://github.com/fortify-presales/IWA-Mobile/actions/workflows/express-api.yml)
 
 # IWA-Mobile
 
